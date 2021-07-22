@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'io.vpv.homeuse'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
@@ -29,6 +29,12 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.springframework.security:spring-security-test'
+}
+
+bootJar {
+    archiveBaseName = 'home-use'
+    archiveVersion = '1.0.0'
+    archiveFileName = 'home-use.jar'
 }
 
 test {
