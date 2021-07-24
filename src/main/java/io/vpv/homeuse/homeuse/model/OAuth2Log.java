@@ -20,7 +20,7 @@ public class OAuth2Log {
     private String id;
     private String action;
     private String username;
-    private Date timestamp = new Date();
+    final private Date timestamp = new Date();
     private Map attributes;
     private Map headers;
 

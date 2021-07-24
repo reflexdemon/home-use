@@ -9,11 +9,10 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
-    depends_on:
-      - home-use-database
+      dockerfile: Dockerfile_debug
     ports:
       - 8080:8080
+      - 7005:7005
     links:
       - home-use-database
     env_file:

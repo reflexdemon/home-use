@@ -19,12 +19,8 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Component
 public class OAuthUtils {
 
-    private OAuth2AuthorizedClientService authorizedClientService;
-
     @Autowired
-    public OAuthUtils(OAuth2AuthorizedClientService authorizedClientService) {
-        this.authorizedClientService = authorizedClientService;
-    }
+    private OAuth2AuthorizedClientService authorizedClientService;
 
     public OAuth2AuthorizedClient getAuthorizedClient(OAuth2AuthenticationToken authentication) {
         return authorizedClientService.loadAuthorizedClient(
