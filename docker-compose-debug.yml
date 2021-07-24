@@ -12,7 +12,7 @@ services:
       dockerfile: Dockerfile_debug
     ports:
       - 8080:8080
-      - 7005:7005
+      - 5005:5005
     links:
       - home-use-database
     env_file:
