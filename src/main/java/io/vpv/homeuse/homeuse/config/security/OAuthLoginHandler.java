@@ -24,9 +24,12 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.vpv.homeuse.homeuse.config.security.Constants.*;
+
 @Component("VPVAuthenticationSuccessHandler")
 public class OAuthLoginHandler extends AuditService
         implements AuthenticationSuccessHandler {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private OAuthUtils oAuthUtils;
@@ -41,17 +44,16 @@ public class OAuthLoginHandler extends AuditService
         OAuth2AuthenticationToken oAuth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
         Map userAttrMap = oAuthUtils.getUserAttributes(oAuth2AuthenticationToken);
         try {
-            String provider = (String) userAttrMap.get("PROVIDER_ID");
+            String provider = (String) userAttrMap.get(PROVIDER_ID);
             User currentUser = buildUserFromOAuth(userAttrMap);
             User user = getUserFromDB(currentUser);
             //Creates a new HTTP Session
-            request.getSession(true).setAttribute("LOGGED_IN_USER", user);
+            request.getSession(true).setAttribute(LOGGED_IN_USER, user);
         } catch (Exception e) {
             logger.error("Unable to get the user", e);
         }
 
-        String action = "LOGIN_SUCCESS";
-        Mono<OAuth2Log> logMono = saveBlockingLog(request, authentication, userAttrMap, action);
+        Mono<OAuth2Log> logMono = saveBlockingLog(request, authentication, userAttrMap, LOGIN_SUCCESS);
         logger.info("Response:{}", userAttrMap);
         String requestURL = getRedirectURL(request);
         //Consume
@@ -98,7 +100,7 @@ public class OAuthLoginHandler extends AuditService
         Assert.notNull(session, "There needs to be a valid Session");
 
         String requestURL = "/user";
-        Object savedRequest = session.getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+        Object savedRequest = session.getAttribute(SPRING_SECURITY_SAVED_REQUEST);
         if (savedRequest instanceof DefaultSavedRequest) {
             DefaultSavedRequest defaultSavedRequest = (DefaultSavedRequest) savedRequest;
             requestURL = defaultSavedRequest.getRedirectUrl();

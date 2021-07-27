@@ -2,16 +2,21 @@ package io.vpv.homeuse.homeuse.service;
 
 import io.vpv.homeuse.homeuse.dao.AuditLogDao;
 import io.vpv.homeuse.homeuse.model.OAuth2Log;
+import io.vpv.homeuse.homeuse.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import static io.vpv.homeuse.homeuse.config.security.Constants.LOGGED_IN_USER;
 
 public class AuditService {
 
@@ -20,6 +25,7 @@ public class AuditService {
     @Autowired
     private AuditLogDao auditLogDao;
 
+    @Autowired private HttpSession session;
     protected OAuth2Log getoAuth2Log(Authentication authentication, Map userAttrMap, String action, Map headers) {
         OAuth2Log log = new OAuth2Log();
         log.setAction(action);
@@ -50,5 +56,14 @@ public class AuditService {
         logger.info("Saving the value for: {}", log);
         Mono<OAuth2Log> logMono = auditLogDao.save(log);
         return logMono;
+    }
+
+    public Flux<OAuth2Log> getAuditLog() {
+        User user = (User) session.getAttribute(LOGGED_IN_USER);
+        if (null != user) {
+         return auditLogDao.findByUsername(user.getUsername());
+        }
+
+        return Flux.empty();
     }
 }
