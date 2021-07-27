@@ -37,6 +37,7 @@ public class OAuthUtils {
                 });
     }
 
+    @SuppressWarnings("rawtypes")
     public Map getUserAttributes(OAuth2AuthenticationToken authentication) {
         OAuth2AuthorizedClient authorizedClient = getAuthorizedClient(authentication);
         Map userAttributes = Collections.emptyMap();
