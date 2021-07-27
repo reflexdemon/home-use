@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,12 +28,13 @@ public class AuditService {
 
     @Autowired private HttpSession session;
     protected OAuth2Log getoAuth2Log(Authentication authentication, Map userAttrMap, String action, Map headers) {
-        OAuth2Log log = new OAuth2Log();
-        log.setAction(action);
-        log.setAttributes(userAttrMap);
-        log.setHeaders(headers);
-        log.setUsername(authentication.getName());
-        return log;
+
+        return OAuth2Log.builder().action(action)
+                .attributes(userAttrMap)
+                .headers(headers)
+                .username(authentication.getName())
+                .timestamp(new Date())
+                .build();
     }
 
     protected Map getHeaders(final HttpServletRequest request) {
