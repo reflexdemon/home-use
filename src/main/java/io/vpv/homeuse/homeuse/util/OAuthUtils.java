@@ -1,6 +1,5 @@
 package io.vpv.homeuse.homeuse.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -19,8 +18,11 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Component
 public class OAuthUtils {
 
-    @Autowired
-    private OAuth2AuthorizedClientService authorizedClientService;
+    private final OAuth2AuthorizedClientService authorizedClientService;
+
+    public OAuthUtils(OAuth2AuthorizedClientService authorizedClientService) {
+        this.authorizedClientService = authorizedClientService;
+    }
 
     public OAuth2AuthorizedClient getAuthorizedClient(OAuth2AuthenticationToken authentication) {
         return authorizedClientService.loadAuthorizedClient(
@@ -37,7 +39,7 @@ public class OAuthUtils {
                 });
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public Map getUserAttributes(OAuth2AuthenticationToken authentication) {
         OAuth2AuthorizedClient authorizedClient = getAuthorizedClient(authentication);
         Map userAttributes = Collections.emptyMap();
@@ -53,6 +55,7 @@ public class OAuthUtils {
                     .bodyToMono(Map.class)
                     .block();
         }
+        assert userAttributes != null;
         userAttributes.put("PROVIDER_ID", authentication.getAuthorizedClientRegistrationId());
         return userAttributes;
     }
