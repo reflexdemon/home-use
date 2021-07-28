@@ -1,18 +1,28 @@
 server:
-    port: 8080
+  port: 8080
 spring:
-    data:
-        mongodb:
-            uri: ${MONGO_URI}
-    jpa:
-        properties:
-            hibernate:
-                show_sql: true
-    security:
-        #    https://docs.spring.io/spring-security/site/docs/5.2.x/reference/html/oauth2.html#oauth2login-boot-property-mappings
-        oauth2:
-            client:
-                registration:
-                    google:
-                        client-id: ${GOOGLE_CLIENT_ID}
-                        client-secret: ${GOOGLE_SECRET}
+  data:
+    mongodb:
+      uri: ${MONGO_URI}
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+  security:
+    #    https://docs.spring.io/spring-security/site/docs/5.2.x/reference/html/oauth2.html#oauth2login-boot-property-mappings
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_SECRET}
+io:
+  vpv:
+    honeywell:
+      oauth:
+        authorizeEndpoint: 'https://api.honeywell.com/oauth2/authorize'
+        accessTokenEndpoint: 'https://api.honeywell.com/oauth2/accesstoken'
+        tokenEndpoint: 'https://api.honeywell.com/oauth2/token'
+      api:
+        locationsEndpoint: 'https://api.honeywell.com/v2/locations'
+        thermostatsEndpoint: 'https://api.honeywell.com/v2/devices/thermostats'
