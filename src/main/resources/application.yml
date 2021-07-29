@@ -5,9 +5,10 @@ io:
                 locationsEndpoint: https://api.honeywell.com/v2/locations
                 thermostatsEndpoint: https://api.honeywell.com/v2/devices/thermostats
             credentials:
-                clientId: '{cipher}bc1d6bc414beb11efd546232391ddcf63343f180502390642da077275fcc991a7ae65a926a30cf4a6cb701234960ac3916db45126c476eb941cd2910abe26cf7'
-                clientSecret: '{cipher}0a9c1d15810b86e208332ad5b84d9ff54ab086394428c4f158dbc7eb7600b219304dae71d2afc05868a32ce7044840f8'
+                clientId: '{cipher}f871cdbaa54c0ffd143a758588d28acbfa7290ad08f265c057781fb85b14a22291ca89d4f0095b33403adcc3fd6e4d8ad5f2446bb9fc5c5828706ffd7f0c1175'
+                clientSecret: '{cipher}20e1936227e0f4c424bc94692aca3b228e6c8d67552dc2476001a7ff9d801438fdbac72f507e72ae6adb23c79a2a8dcb'
             oauth:
+                redirectUrl: http://localhost:8080/honeywell/response/code
                 accessTokenEndpoint: https://api.honeywell.com/oauth2/accesstoken
                 authorizeEndpoint: https://api.honeywell.com/oauth2/authorize
                 tokenEndpoint: https://api.honeywell.com/oauth2/token

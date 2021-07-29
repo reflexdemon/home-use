@@ -11,4 +11,5 @@ public class HoneyWellOAuthConfig {
     String authorizeEndpoint;
     String accessTokenEndpoint;
     String tokenEndpoint;
+    String redirectUrl;
 }
