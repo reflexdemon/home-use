@@ -22,6 +22,7 @@ spring:
             hibernate:
                 show_sql: true
     security:
+        #    https://docs.spring.io/spring-security/site/docs/5.2.x/reference/html/oauth2.html#oauth2login-boot-property-mappings
         oauth2:
             client:
                 registration:
