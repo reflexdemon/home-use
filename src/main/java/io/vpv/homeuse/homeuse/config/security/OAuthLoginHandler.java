@@ -99,7 +99,7 @@ public class OAuthLoginHandler extends AuditService
         HttpSession session = request.getSession(false);
         Assert.notNull(session, "There needs to be a valid Session");
 
-        String requestURL = "/user";
+        String requestURL = "/";
         Object savedRequest = session.getAttribute(SPRING_SECURITY_SAVED_REQUEST);
         if (savedRequest instanceof DefaultSavedRequest) {
             DefaultSavedRequest defaultSavedRequest = (DefaultSavedRequest) savedRequest;

@@ -24,13 +24,21 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
 
     //Encrypting Credentials
     implementation 'org.springframework.cloud:spring-cloud-context:3.0.3'
     implementation 'org.bouncycastle:bcprov-jdk16:1.46'
 
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
+    //Building UI
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.webjars:bootstrap:5.0.2'
+    implementation 'org.webjars:jquery:3.6.0'
+    implementation 'org.webjars:webjars-locator:0.41'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

@@ -29,8 +29,10 @@ public class OAuth2LoginSecurityConfig
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .authorizeRequests()
-            .antMatchers("/login**", "/error**")
+                .authorizeRequests()
+                .antMatchers("/login**", "/error**")
+                .permitAll()
+                .antMatchers("/", "/index", "/webjars/**")
             .permitAll()
             .antMatchers("/oauth2/authorization/**")
             .permitAll()
