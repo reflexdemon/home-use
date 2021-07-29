@@ -12,4 +12,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class HoneyWellConfig {
     HoneyWellOAuthConfig oauth;
     HoneyWellApiConfig api;
+    HoneyWellCredentialsConfig credentials;
 }

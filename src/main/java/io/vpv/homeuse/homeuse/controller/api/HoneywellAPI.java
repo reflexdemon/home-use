@@ -16,6 +16,8 @@ public class HoneywellAPI {
 
     @RequestMapping(method = RequestMethod.GET, path = "/config/honeywell")
     public ResponseEntity<HoneyWellConfig> getConfig() {
-        return new ResponseEntity<>(honeywellService.getConfig(), HttpStatus.OK);
+        HoneyWellConfig config = honeywellService.getConfig();
+        config.getCredentials().setClientSecret("**********");
+        return new ResponseEntity<>(config, HttpStatus.OK);
     }
 }

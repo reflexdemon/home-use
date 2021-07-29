@@ -25,6 +25,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
 
+    //Encrypting Credentials
+    implementation 'org.springframework.cloud:spring-cloud-context:3.0.3'
+    implementation 'org.bouncycastle:bcprov-jdk16:1.46'
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 
