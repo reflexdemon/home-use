@@ -2,14 +2,13 @@ package io.vpv.homeuse.homeuse.controller.page;
 
 import io.vpv.homeuse.homeuse.model.User;
 import io.vpv.homeuse.homeuse.service.HoneywellService;
+import io.vpv.homeuse.homeuse.service.UserSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import javax.servlet.http.HttpSession;
 
 import static io.vpv.homeuse.homeuse.config.security.Constants.LOGGED_IN_USER;
 
@@ -18,7 +17,7 @@ import static io.vpv.homeuse.homeuse.config.security.Constants.LOGGED_IN_USER;
 public class HoneywellResponseController {
 
     @Autowired
-    HttpSession httpSession;
+    UserSession session;
 
     @Autowired
     HoneywellService honeywellService;
@@ -28,8 +27,9 @@ public class HoneywellResponseController {
                             @RequestParam String code,
                             @RequestParam String state,
                             @RequestParam String scope) {
-        User user = (User) httpSession.getAttribute(LOGGED_IN_USER);
-        User linkedUser = honeywellService.getAuthToken(user, code, state, scope);
+        User user = session.getValueFromSession(LOGGED_IN_USER, User.class);
+        User linkedUser = honeywellService.getAuthToken(user, code, state, scope).block();
+        session.updateUser(linkedUser);
         model.addAttribute("linkedUser", linkedUser);
         return "redirect:/";
     }

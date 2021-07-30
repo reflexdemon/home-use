@@ -3,6 +3,7 @@ package io.vpv.homeuse.homeuse.config;
 import io.vpv.homeuse.homeuse.config.security.OAuth2AccessTokenResponseConverterWithDefaults;
 import io.vpv.homeuse.homeuse.config.security.OAuthLoginHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,17 +34,17 @@ public class OAuth2LoginSecurityConfig
                 .antMatchers("/login**", "/error**")
                 .permitAll()
                 .antMatchers("/", "/index", "/webjars/**")
-            .permitAll()
-            .antMatchers("/oauth2/authorization/**")
-            .permitAll()
-            .anyRequest()
-            .authenticated()
-            .and()
-            .oauth2Login()
-            .tokenEndpoint()
-            .accessTokenResponseClient(authorizationCodeTokenResponseClient())
-            .and()
-            .successHandler(oAuthLoginHandler);
+                .permitAll()
+                .antMatchers("/oauth2/authorization/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .oauth2Login()
+                .tokenEndpoint()
+                .accessTokenResponseClient(authorizationCodeTokenResponseClient())
+                .and()
+                .successHandler(oAuthLoginHandler);
     }
 
     private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> authorizationCodeTokenResponseClient() {
@@ -61,4 +62,8 @@ public class OAuth2LoginSecurityConfig
         return tokenResponseClient;
     }
 
+    @Bean("honeywellRestTemplate")
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 }

@@ -1,28 +1,33 @@
 package io.vpv.homeuse.homeuse.controller.api;
 
 import io.vpv.homeuse.homeuse.model.OAuth2Log;
+import io.vpv.homeuse.homeuse.model.User;
 import io.vpv.homeuse.homeuse.service.AuditService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import io.vpv.homeuse.homeuse.service.UserSession;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
-import java.util.Map;
+import static io.vpv.homeuse.homeuse.config.security.Constants.LOGGED_IN_USER;
 
 @RestController
 public class UserAPI {
 
+    final
+    UserSession session;
 
-    final AuditService auditService;
+    final
+    AuditService auditService;
 
-    public UserAPI(AuditService auditService) {
+    public UserAPI(UserSession session, AuditService auditService) {
+        this.session = session;
         this.auditService = auditService;
     }
 
+
     @GetMapping("/user")
-    public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
-        return principal.getAttributes();
+    public User userFromSession() {
+        return session.getValueFromSession(LOGGED_IN_USER, User.class);
     }
 
     @GetMapping("/user/log")

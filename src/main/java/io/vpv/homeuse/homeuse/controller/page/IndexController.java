@@ -1,13 +1,11 @@
 package io.vpv.homeuse.homeuse.controller.page;
 
 import io.vpv.homeuse.homeuse.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.vpv.homeuse.homeuse.service.UserSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.servlet.http.HttpSession;
 
 import static io.vpv.homeuse.homeuse.config.security.Constants.LOGGED_IN_USER;
 
@@ -15,12 +13,15 @@ import static io.vpv.homeuse.homeuse.config.security.Constants.LOGGED_IN_USER;
 @RequestMapping({"/", "/index"})
 public class IndexController {
 
-    @Autowired
-    HttpSession httpSession;
+    final UserSession session;
+
+    public IndexController(UserSession userSession) {
+        this.session = userSession;
+    }
 
     @GetMapping
     public String main(Model model) {
-        User user = (User) httpSession.getAttribute(LOGGED_IN_USER);
+        User user = session.getValueFromSession(LOGGED_IN_USER, User.class);
         model.addAttribute(LOGGED_IN_USER, user);
         return "index";
     }

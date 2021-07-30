@@ -1,15 +1,23 @@
 package io.vpv.homeuse.homeuse.service;
 
 import io.vpv.homeuse.homeuse.config.HoneyWellConfig;
+import io.vpv.homeuse.homeuse.model.HoneyWellLinkToken;
 import io.vpv.homeuse.homeuse.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import reactor.core.publisher.Mono;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -23,6 +31,13 @@ public class HoneywellService {
 
     @Autowired
     HoneyWellConfig config;
+
+    @Autowired
+    @Qualifier("honeywellRestTemplate")
+    RestTemplate restTemplate;
+
+    @Autowired
+    UserService userService;
 
     public HoneyWellConfig getConfig() {
         return config;
@@ -42,7 +57,7 @@ public class HoneywellService {
 
     private String buildRedirectEndpoint(final User user) {
         final String endpoint = config.getOauth().getAuthorizeEndpoint();
-        Map<String, String> params = Map.of(
+        final Map<String, String> params = Map.of(
                 "response_type", "code",
                 "redirect_uri", config.getOauth().getRedirectUrl(),
                 "client_id", config.getCredentials().getClientId(),
@@ -66,8 +81,30 @@ public class HoneywellService {
         return "";
     }
 
-    public User getAuthToken(User user, String code, String state, String scope) {
+    public Mono<User> getAuthToken(User user, String code, String state, String scope) {
         //TODO: Need to get the Token based on the code and attach the token to the user
-        return user;
+        final String endpoint = config.getOauth().getTokenEndpoint();
+        final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("grant_type", "authorization_code");
+        map.add("code", code);
+        map.add("redirect_uri", config.getOauth().getRedirectUrl());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setBasicAuth(config.getCredentials().getClientId(), config.getCredentials().getClientSecret());
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
+        ResponseEntity<HoneyWellLinkToken> response
+                = restTemplate.exchange(
+                endpoint,
+                HttpMethod.POST,
+                entity,
+                HoneyWellLinkToken.class);
+
+        user.setHoneyWellLinkToken(response.getBody());
+
+
+        return userService.save(user);
     }
 }
