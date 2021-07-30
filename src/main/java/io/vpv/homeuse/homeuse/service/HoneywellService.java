@@ -82,7 +82,6 @@ public class HoneywellService {
     }
 
     public Mono<User> getAuthToken(User user, String code, String state, String scope) {
-        //TODO: Need to get the Token based on the code and attach the token to the user
         final String endpoint = config.getOauth().getTokenEndpoint();
         final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("grant_type", "authorization_code");
@@ -94,6 +93,25 @@ public class HoneywellService {
         headers.setBasicAuth(config.getCredentials().getClientId(), config.getCredentials().getClientSecret());
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
+        return postAPI(user, endpoint, map, headers);
+    }
+
+    public Mono<User> renewToken(final User user) {
+        final String endpoint = config.getOauth().getTokenEndpoint();
+        final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("grant_type", "refresh_token");
+        map.add("refresh_token", user.getHoneyWellLinkToken().getRefreshToken());
+
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setBasicAuth(config.getCredentials().getClientId(), config.getCredentials().getClientSecret());
+//        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+        return postAPI(user, endpoint, map, headers);
+    }
+
+    private Mono<User> postAPI(User user, String endpoint, MultiValueMap<String, String> map, HttpHeaders headers) {
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
         ResponseEntity<HoneyWellLinkToken> response
                 = restTemplate.exchange(
@@ -103,8 +121,7 @@ public class HoneywellService {
                 HoneyWellLinkToken.class);
 
         user.setHoneyWellLinkToken(response.getBody());
-
-
+        
         return userService.save(user);
     }
 }
