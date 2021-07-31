@@ -44,10 +44,14 @@
 <div class="container">
 
     <div class="row">
-        <div class="col-md-4 mt-5" th:if="${LOGGED_IN_USER} != null">
-            Welcome, <span th:text="${LOGGED_IN_USER.getLastName()} + ', ' + ${LOGGED_IN_USER.getFirstName()}"></span>.
+        <div class="col-md-12 mt-5" th:if="${LOGGED_IN_USER} != null">
+            Welcome, <span class="fw-bold"
+                           th:text="${LOGGED_IN_USER.getLastName()} + ', ' + ${LOGGED_IN_USER.getFirstName()}"></span>.
             Please click on the below button to link your Account to HoneyWell Thermostat.
             <a class="btn btn-primary" href="/link?provider=honeywell">Link your Account with Honey Well</a>
+        </div>
+        <div class="col-md-12 mt-5" th:if="${LOGGED_IN_USER} == null">
+            Please <a class="btn btn-primary" href="/login">Login</a> to link your Honeywell account
         </div>
     </div>
 </div>

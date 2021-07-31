@@ -29,5 +29,5 @@ Here is the wishlist for the features that are planned to be built.
 2. Register with Google and create OAUTH Login setup
 3. Register with Honeywell Developer Portal get your credentials
 4. Encrypt and save the credentials on the configuration files
-    1. Using `io.vpv.homeuse.homeuse.SpringEncryptDecrypt` run it inside IDE or terminal to encrypt your credentials
+    1. Using `SpringEncryptDecrypt` run it inside IDE or terminal to encrypt your credentials
 5. Add the environment variable key values from `.env` file to your Run Configuration on IDE
