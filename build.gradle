@@ -26,7 +26,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
-
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     //Encrypting Credentials
     implementation 'org.springframework.cloud:spring-cloud-context:3.0.3'
     implementation 'org.bouncycastle:bcprov-jdk16:1.46'

@@ -6,12 +6,12 @@ import io.vpv.homeuse.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.io.UnsupportedEncodingException;
@@ -20,9 +20,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
+import static org.springframework.web.reactive.function.BodyInserters.fromFormData;
 
 @Service
 public class HoneywellService {
@@ -31,10 +33,6 @@ public class HoneywellService {
 
     @Autowired
     HoneyWellConfig config;
-
-    @Autowired
-    @Qualifier("honeywellRestTemplate")
-    RestTemplate restTemplate;
 
     @Autowired
     UserService userService;
@@ -88,10 +86,12 @@ public class HoneywellService {
         map.add("code", code);
         map.add("redirect_uri", config.getOauth().getRedirectUrl());
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setBasicAuth(config.getCredentials().getClientId(), config.getCredentials().getClientSecret());
-        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        Consumer<HttpHeaders> headers = (h -> {
+            h.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            h.setBasicAuth(config.getCredentials().getClientId(), config.getCredentials().getClientSecret());
+            h.setAccept(List.of(MediaType.APPLICATION_JSON));
+        });
+
 
         return postAPI(user, endpoint, map, headers);
     }
@@ -103,25 +103,27 @@ public class HoneywellService {
         map.add("refresh_token", user.getHoneyWellLinkToken().getRefreshToken());
 
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setBasicAuth(config.getCredentials().getClientId(), config.getCredentials().getClientSecret());
-//        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        Consumer<HttpHeaders> headers = (h -> {
+            h.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            h.setBasicAuth(config.getCredentials().getClientId(), config.getCredentials().getClientSecret());
+//            h.setAccept(List.of(MediaType.APPLICATION_JSON));
+        });
 
         return postAPI(user, endpoint, map, headers);
     }
 
-    private Mono<User> postAPI(User user, String endpoint, MultiValueMap<String, String> map, HttpHeaders headers) {
-        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
-        ResponseEntity<HoneyWellLinkToken> response
-                = restTemplate.exchange(
-                endpoint,
-                HttpMethod.POST,
-                entity,
-                HoneyWellLinkToken.class);
-
-        user.setHoneyWellLinkToken(response.getBody());
-
-        return userService.save(user);
+    private Mono<User> postAPI(User user, String endpoint, MultiValueMap<String, String> map, Consumer<HttpHeaders> headers) {
+        return WebClient
+                .builder()
+                .baseUrl(endpoint)
+                .build()
+                .post()
+                .headers(headers)
+                .body(fromFormData(map))
+                .retrieve()
+                .bodyToMono(HoneyWellLinkToken.class)
+                .map(user::withHoneyWellLinkToken)
+                .map(userService::save)
+                .block();
     }
 }

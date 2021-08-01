@@ -2,37 +2,25 @@ package io.vpv.homeuse.service;
 
 import io.vpv.homeuse.config.HoneyWellConfig;
 import io.vpv.homeuse.exceptions.ApplicationException;
-import io.vpv.homeuse.model.HoneyWellLinkToken;
 import io.vpv.homeuse.model.User;
 import io.vpv.homeuse.model.honeywell.Location;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-
-import static com.nimbusds.oauth2.sdk.token.AccessTokenType.BEARER;
 
 @Service
 public class HoneywellThermostatService {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     HoneyWellConfig config;
-
     @Autowired
     HoneywellService honeywellService;
-
-    @Autowired
-    @Qualifier("honeywellRestTemplate")
-    RestTemplate restTemplate;
-
 
     public List<Location> getLocations(final User user) {
         if (null == user) {
@@ -43,34 +31,35 @@ public class HoneywellThermostatService {
             throw new ApplicationException(String.format("%s has not linked the account with Honeywell", user.getUsername()));
         }
 
-        HoneyWellLinkToken linkToken = user.getHoneyWellLinkToken();
 
-        List<Location> locations = null;
-        try {
-            locations = getLocations(linkToken);
-
-        } catch (Exception e) {
-            User newUser = honeywellService.renewToken(user).block();
-            locations = getLocations(newUser);
-        }
+        List<Location> locations = getLocationsAPI(user).block();
 
         return locations;
 
     }
 
-    private List<Location> getLocations(HoneyWellLinkToken linkToken) {
+    private Mono<List<Location>> getLocationsAPI(final User user) {
         String endpoint = config.getApi().getLocationsEndpoint()
                 .concat("?apikey=")
                 .concat(config.getCredentials().getClientId());
-        HttpHeaders headers = new HttpHeaders();
-        if (BEARER.toString().equals(linkToken.getTokenType())) {
-            headers.setBearerAuth(linkToken.getAccessToken());
-        }
-        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(headers);
-        ResponseEntity<List<Location>> responseLocations =
-                restTemplate.exchange(endpoint, HttpMethod.GET, entity, new ParameterizedTypeReference<>() {
+
+        return WebClient.builder().baseUrl(endpoint)
+                .build()
+                .get()
+                .headers(httpHeaders -> httpHeaders.setBearerAuth(user.getHoneyWellLinkToken().getAccessToken()))
+                .retrieve()
+                .bodyToFlux(Location.class)
+                .collectList()
+                .doOnError(err -> {
+                    WebClient.builder().baseUrl(endpoint)
+                            .build()
+                            .get()
+                            .headers(httpHeaders -> httpHeaders.setBearerAuth(honeywellService.renewToken(user).block().getHoneyWellLinkToken().getAccessToken()))
+                            .retrieve().bodyToFlux(Location.class);
+
                 });
-        List<Location> locations = responseLocations.getBody();
-        return locations;
+
     }
+
+
 }

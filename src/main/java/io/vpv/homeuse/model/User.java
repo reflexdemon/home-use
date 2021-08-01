@@ -15,6 +15,7 @@ import java.util.Map;
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
+@With
 public class User {
 
     @Id
