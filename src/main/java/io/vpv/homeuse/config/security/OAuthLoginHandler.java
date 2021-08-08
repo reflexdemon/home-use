@@ -43,8 +43,11 @@ public class OAuthLoginHandler
         Assert.notNull(user, "User cannot be empty");
         return user
                 .flatMap(u -> userService.findById(u.getId()))
-                .onErrorResume(e -> user)
-                .flatMap(userService::save);
+                .flatMap(userService::save)
+                .map(u -> {
+                    logger.info("User from DB is: {}", u);
+                    return u;
+                });
 
     }
 
@@ -60,7 +63,7 @@ public class OAuthLoginHandler
 
     }
 
-    public Mono<User> buildUserFromOAuth(Mono<Map<String, String>> userMap, WebFilterExchange webFilterExchange) {
+    public Mono<User> buildUserFromOAuth(Mono<Map<String, String>> userMap) {
         return userMap
                 .map(attr -> {
                     logger.info("Response:{}", attr);
@@ -76,12 +79,7 @@ public class OAuthLoginHandler
                                 .source(userAttrMap.get("PROVIDER_ID"))
                                 .avatarUrl(userAttrMap.get("picture"))
                                 .email(userAttrMap.get("email")).build()
-                ).flatMap(u -> webFilterExchange.getExchange().getSession()
-                        .map(
-                                webSession -> {
-                                    webSession.getAttributes().put(LOGGED_IN_USER, u);
-                                    return u;
-                                }));
+                );
     }
 
     @Override
@@ -90,8 +88,14 @@ public class OAuthLoginHandler
         OAuth2AuthenticationToken oAuth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
         Mono<Map<String, String>> userAttrMap = oAuthUtils.getUserAttributes(oAuth2AuthenticationToken);
 
-        Mono<User> currentUser = buildUserFromOAuth(userAttrMap, webFilterExchange);
-        Mono<User> user = getReactiveDBUser(currentUser);
+        Mono<User> currentUser = buildUserFromOAuth(userAttrMap);
+        Mono<User> user = getReactiveDBUser(currentUser)
+                .flatMap(u -> webFilterExchange.getExchange().getSession()
+                        .map(
+                                webSession -> {
+                                    webSession.getAttributes().put(LOGGED_IN_USER, u);
+                                    return u;
+                                }));
         //Creates a new HTTP Session
 
 

@@ -42,9 +42,7 @@ public class HoneywellThermostatService {
         }
 
 
-        Mono<APIResponseData> locations = getLocationsAPI(user);
-
-        return locations;
+        return getLocationsAPI(user);
 
     }
 
@@ -57,6 +55,7 @@ public class HoneywellThermostatService {
                 .onErrorResume(
                         e -> honeywellService.renewToken(user)
                                 .flatMap(newUser -> getLocations(endpoint, newUser))
+//                                .flatMap( loc -> APIResponseData.builder().user(user).locations(loc).build())
                 )
                 .map(loc -> APIResponseData.builder()
                         .user(user)

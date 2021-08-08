@@ -36,18 +36,13 @@ public class HoneywellAPI {
                 );
         Mono<List<Location>> locations =
                 user.flatMap(u -> honeywellThermostatService.getLocations(u)
-                        .map(apiResponse -> {
-                            serverWebExchange.getAttributes().put(LOGGED_IN_USER, apiResponse.getUser());
-                            return apiResponse.getLocations();
-                        }));
+                        .flatMap(apiResponse -> serverWebExchange.getSession()
+                                .mapNotNull(
+                                        webSession -> webSession
+                                                .getAttributes()
+                                                .put(LOGGED_IN_USER, apiResponse.getUser())
+                                ).thenReturn(apiResponse.getLocations())));
 
-//        User newUser = userService.findById(user.getId());
         return new ResponseEntity<>(locations, HttpStatus.OK);
-    }
-
-    private void processUser(User user) {
-        //We only ned to get from DB and save it in session
-
-//        return Mono.just(locations);
     }
 }
