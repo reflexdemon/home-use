@@ -2,7 +2,6 @@ package io.vpv.homeuse.service;
 
 import io.vpv.homeuse.dao.UserDao;
 import io.vpv.homeuse.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,8 +11,12 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-    @Autowired
+    final
     UserDao userDao;
+
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
     public Mono<User> findById(String id) {
         return userDao.findById(id);

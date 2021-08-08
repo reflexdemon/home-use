@@ -5,7 +5,6 @@ import io.vpv.homeuse.model.HoneyWellLinkToken;
 import io.vpv.homeuse.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -29,13 +28,16 @@ import static org.springframework.web.reactive.function.BodyInserters.fromFormDa
 @Service
 public class HoneywellService {
 
+    final
+    HoneyWellConfig config;
+    final
+    UserService userService;
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    @Autowired
-    HoneyWellConfig config;
-
-    @Autowired
-    UserService userService;
+    public HoneywellService(HoneyWellConfig config, UserService userService) {
+        this.config = config;
+        this.userService = userService;
+    }
 
     public HoneyWellConfig getConfig() {
         return config;
@@ -106,7 +108,6 @@ public class HoneywellService {
         Consumer<HttpHeaders> headers = (h -> {
             h.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             h.setBasicAuth(config.getCredentials().getClientId(), config.getCredentials().getClientSecret());
-//            h.setAccept(List.of(MediaType.APPLICATION_JSON));
         });
 
         return postAPI(user, endpoint, map, headers);
@@ -123,7 +124,6 @@ public class HoneywellService {
                 .retrieve()
                 .bodyToMono(HoneyWellLinkToken.class)
                 .map(user::withHoneyWellLinkToken)
-                .map(userService::save)
-                .block();
+                .flatMap(userService::save);
     }
 }

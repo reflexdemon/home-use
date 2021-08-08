@@ -3,36 +3,38 @@ package io.vpv.homeuse.controller.api;
 import io.vpv.homeuse.model.OAuth2Log;
 import io.vpv.homeuse.model.User;
 import io.vpv.homeuse.service.AuditService;
-import io.vpv.homeuse.service.UserSession;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import static io.vpv.homeuse.config.security.Constants.LOGGED_IN_USER;
 
 @RestController
 public class UserAPI {
-
-    final
-    UserSession session;
-
     final
     AuditService auditService;
 
-    public UserAPI(UserSession session, AuditService auditService) {
-        this.session = session;
+    public UserAPI(AuditService auditService) {
         this.auditService = auditService;
     }
 
 
     @GetMapping("/user")
-    public User userFromSession() {
-        return session.getValueFromSession(LOGGED_IN_USER, User.class);
+    public Mono<User> userFromSession(ServerWebExchange serverWebExchange) {
+        return serverWebExchange
+                .getSession()
+                .mapNotNull(
+                        session -> session.getAttribute(LOGGED_IN_USER)
+                );
     }
 
     @GetMapping("/user/log")
-    public Flux<OAuth2Log> userLog() {
-        return auditService.getAuditLog();
+    public Flux<OAuth2Log> userLog(ServerWebExchange serverWebExchange) {
+        Mono<User> user = userFromSession(serverWebExchange);
+        return auditService.getAuditLog(user);
+
     }
 
 }
