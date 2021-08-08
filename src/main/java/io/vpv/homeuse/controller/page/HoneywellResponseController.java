@@ -1,6 +1,5 @@
 package io.vpv.homeuse.controller.page;
 
-import io.vpv.homeuse.model.User;
 import io.vpv.homeuse.service.HoneywellService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +10,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import static io.vpv.homeuse.config.security.Constants.LOGGED_IN_USER;
+import static io.vpv.homeuse.util.SessionUtil.getUserFromSession;
 
 @Controller
 @RequestMapping({"/honeywell/response/code"})
@@ -26,19 +26,16 @@ public class HoneywellResponseController {
     }
 
     @GetMapping
-    public String authorize(Model model,
-                            ServerWebExchange serverWebExchange,
-                            @RequestParam String code,
-                            @RequestParam String state,
-                            @RequestParam String scope) {
-        User user = serverWebExchange.getAttribute(LOGGED_IN_USER);
-        Mono<User> linkedUser = honeywellService.getAuthToken(user, code, state, scope)
-                .map(u -> {
-                    serverWebExchange.getAttributes().put(LOGGED_IN_USER, u);
+    public Mono<String> authorize(Model model,
+                                  ServerWebExchange serverWebExchange,
+                                  @RequestParam String code,
+                                  @RequestParam String state,
+                                  @RequestParam String scope) {
+        return getUserFromSession(serverWebExchange).flatMap(user -> honeywellService.getAuthToken(user, code, state, scope))
+                .flatMap(u -> serverWebExchange.getSession().mapNotNull(session -> {
+                    session.getAttributes().put(LOGGED_IN_USER, u);
                     return u;
-                });
-        
-        model.addAttribute("linkedUser", linkedUser);
-        return "redirect:/";
+                }))
+                .map(u -> "redirect:/");
     }
 }

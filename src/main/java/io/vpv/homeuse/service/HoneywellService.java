@@ -1,5 +1,6 @@
 package io.vpv.homeuse.service;
 
+import io.netty.handler.logging.LogLevel;
 import io.vpv.homeuse.config.HoneyWellConfig;
 import io.vpv.homeuse.model.HoneyWellLinkToken;
 import io.vpv.homeuse.model.User;
@@ -7,11 +8,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.transport.logging.AdvancedByteBufFormat;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -116,9 +121,13 @@ public class HoneywellService {
     }
 
     private Mono<User> postAPI(User user, String endpoint, MultiValueMap<String, String> map, Consumer<HttpHeaders> headers) {
+        final HttpClient httpClient = HttpClient.create()
+                .wiretap(this.getClass().getCanonicalName(), LogLevel.INFO, AdvancedByteBufFormat.TEXTUAL);
+        final ClientHttpConnector conn = new ReactorClientHttpConnector(httpClient);
         return WebClient
                 .builder()
                 .baseUrl(endpoint)
+                .clientConnector(conn)
                 .build()
                 .post()
                 .headers(headers)
