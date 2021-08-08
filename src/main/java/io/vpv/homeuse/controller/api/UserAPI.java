@@ -9,7 +9,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static io.vpv.homeuse.config.security.Constants.LOGGED_IN_USER;
+import static io.vpv.homeuse.util.SessionUtil.getUserFromSession;
 
 @RestController
 public class UserAPI {
@@ -23,16 +23,12 @@ public class UserAPI {
 
     @GetMapping("/user")
     public Mono<User> userFromSession(ServerWebExchange serverWebExchange) {
-        return serverWebExchange
-                .getSession()
-                .mapNotNull(
-                        session -> session.getAttribute(LOGGED_IN_USER)
-                );
+        return getUserFromSession(serverWebExchange);
     }
 
     @GetMapping("/user/log")
     public Flux<OAuth2Log> userLog(ServerWebExchange serverWebExchange) {
-        Mono<User> user = userFromSession(serverWebExchange);
+        Mono<User> user = getUserFromSession(serverWebExchange);
         return auditService.getAuditLog(user);
 
     }

@@ -43,33 +43,35 @@ public class HoneywellService {
         return config;
     }
 
-    public String getAuthorizeLink(final User user) {
-        if (isNull(user)
-                || isNull(user.getHoneyWellLinkToken())
-                || isNull(user.getHoneyWellLinkToken().getAccessToken())
-        ) {
-            String redirectEndpoint = buildRedirectEndpoint(user);
-            logger.info("The redirect endpoint for {}  is {}", user.getId(), redirectEndpoint);
-            return redirectEndpoint;
-        }
-        return "/?already-linked";
+    public Mono<String> getAuthorizeLink(final Mono<User> user) {
+        return user
+                .mapNotNull(this::buildRedirectEndpoint)
+                .map(redirect -> {
+                    logger.info("The redirect endpoint is {}", redirect);
+                    return redirect;
+                }).map("redirect:"::concat);
+
     }
 
     private String buildRedirectEndpoint(final User user) {
-        final String endpoint = config.getOauth().getAuthorizeEndpoint();
-        final Map<String, String> params = Map.of(
-                "response_type", "code",
-                "redirect_uri", config.getOauth().getRedirectUrl(),
-                "client_id", config.getCredentials().getClientId(),
-                "state", user.getId()
-        );
-        String queryString = params.entrySet().stream()
-                .map(entry -> entry.getKey() + "=" + encodeValue(entry.getValue()))
-                .collect(Collectors.joining("&"));
+        if (isNull(user.getHoneyWellLinkToken())
+                || isNull(user.getHoneyWellLinkToken().getAccessToken())) {
+            final String endpoint = config.getOauth().getAuthorizeEndpoint();
+            final Map<String, String> params = Map.of(
+                    "response_type", "code",
+                    "redirect_uri", config.getOauth().getRedirectUrl(),
+                    "client_id", config.getCredentials().getClientId(),
+                    "state", user.getId()
+            );
+            String queryString = params.entrySet().stream()
+                    .map(entry -> entry.getKey() + "=" + encodeValue(entry.getValue()))
+                    .collect(Collectors.joining("&"));
 
-        return new StringJoiner("?").add(endpoint)
-                .add(queryString)
-                .toString();
+            return new StringJoiner("?").add(endpoint)
+                    .add(queryString)
+                    .toString();
+        }
+        return "/?already-linked";
     }
 
     private String encodeValue(String value) {
