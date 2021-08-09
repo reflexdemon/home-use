@@ -32,7 +32,6 @@ spring:
           google:
             client-id: '{cipher}b7d44648dfec54846be133acad7e51168e2573ad04ca7da4895ddda028f25bbf4691a3af151535da3e1b7e6b07ef39b12d79acbce71512e2882327326aabad836db80af9cdd23c4ea5dcdd4a8310ef9ca7d9982221b8d49c7461e74a97696e31'
             client-secret: '{cipher}ded65b42555deca45828095e135e11b72e963c4c1bc552c424ae3523a8e797dd80db6f6eef100a1727e05d7bd18a3e02'
-
   main:
     allow-bean-definition-overriding: true
   thymeleaf:

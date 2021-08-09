@@ -1,7 +1,6 @@
 package io.vpv.homeuse.util;
 
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -13,6 +12,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.Objects;
+
+import static io.vpv.homeuse.config.security.Constants.PROVIDER_ID;
 
 @Component
 public class OAuthUtils {
@@ -31,7 +32,7 @@ public class OAuthUtils {
     public ExchangeFilterFunction oauth2Credentials(Mono<OAuth2AuthorizedClient> authorizedClient) {
         return ExchangeFilterFunction.ofRequestProcessor(
                 clientRequest -> authorizedClient.map(client -> ClientRequest.from(clientRequest)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + client.getAccessToken().getTokenValue())
+                        .headers(header -> header.setBearerAuth(client.getAccessToken().getTokenValue()))
                         .build()));
     }
 
@@ -50,7 +51,7 @@ public class OAuthUtils {
                         .bodyToMono(new ParameterizedTypeReference<Map<String, String>>() {
                         })
                 ).map(map -> {
-                    map.put("PROVIDER_ID", authentication.getAuthorizedClientRegistrationId());
+                    map.put(PROVIDER_ID, authentication.getAuthorizedClientRegistrationId());
                     return map;
                 });
     }
