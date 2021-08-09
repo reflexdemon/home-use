@@ -1,18 +1,22 @@
 package io.vpv.homeuse.service;
 
+import io.netty.handler.logging.LogLevel;
 import io.vpv.homeuse.config.HoneyWellConfig;
 import io.vpv.homeuse.model.HoneyWellLinkToken;
 import io.vpv.homeuse.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.transport.logging.AdvancedByteBufFormat;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -29,45 +33,50 @@ import static org.springframework.web.reactive.function.BodyInserters.fromFormDa
 @Service
 public class HoneywellService {
 
+    final
+    HoneyWellConfig config;
+    final
+    UserService userService;
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    @Autowired
-    HoneyWellConfig config;
-
-    @Autowired
-    UserService userService;
+    public HoneywellService(HoneyWellConfig config, UserService userService) {
+        this.config = config;
+        this.userService = userService;
+    }
 
     public HoneyWellConfig getConfig() {
         return config;
     }
 
-    public String getAuthorizeLink(final User user) {
-        if (isNull(user)
-                || isNull(user.getHoneyWellLinkToken())
-                || isNull(user.getHoneyWellLinkToken().getAccessToken())
-        ) {
-            String redirectEndpoint = buildRedirectEndpoint(user);
-            logger.info("The redirect endpoint for {}  is {}", user.getId(), redirectEndpoint);
-            return redirectEndpoint;
-        }
-        return "/?already-linked";
+    public Mono<String> getAuthorizeLink(final Mono<User> user) {
+        return user
+                .mapNotNull(this::buildRedirectEndpoint)
+                .map(redirect -> {
+                    logger.info("The redirect endpoint is {}", redirect);
+                    return redirect;
+                }).map("redirect:"::concat);
+
     }
 
     private String buildRedirectEndpoint(final User user) {
-        final String endpoint = config.getOauth().getAuthorizeEndpoint();
-        final Map<String, String> params = Map.of(
-                "response_type", "code",
-                "redirect_uri", config.getOauth().getRedirectUrl(),
-                "client_id", config.getCredentials().getClientId(),
-                "state", user.getId()
-        );
-        String queryString = params.entrySet().stream()
-                .map(entry -> entry.getKey() + "=" + encodeValue(entry.getValue()))
-                .collect(Collectors.joining("&"));
+        if (isNull(user.getHoneyWellLinkToken())
+                || isNull(user.getHoneyWellLinkToken().getAccessToken())) {
+            final String endpoint = config.getOauth().getAuthorizeEndpoint();
+            final Map<String, String> params = Map.of(
+                    "response_type", "code",
+                    "redirect_uri", config.getOauth().getRedirectUrl(),
+                    "client_id", config.getCredentials().getClientId(),
+                    "state", user.getId()
+            );
+            String queryString = params.entrySet().stream()
+                    .map(entry -> entry.getKey() + "=" + encodeValue(entry.getValue()))
+                    .collect(Collectors.joining("&"));
 
-        return new StringJoiner("?").add(endpoint)
-                .add(queryString)
-                .toString();
+            return new StringJoiner("?").add(endpoint)
+                    .add(queryString)
+                    .toString();
+        }
+        return "/?already-linked";
     }
 
     private String encodeValue(String value) {
@@ -106,16 +115,19 @@ public class HoneywellService {
         Consumer<HttpHeaders> headers = (h -> {
             h.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             h.setBasicAuth(config.getCredentials().getClientId(), config.getCredentials().getClientSecret());
-//            h.setAccept(List.of(MediaType.APPLICATION_JSON));
         });
 
         return postAPI(user, endpoint, map, headers);
     }
 
     private Mono<User> postAPI(User user, String endpoint, MultiValueMap<String, String> map, Consumer<HttpHeaders> headers) {
+        final HttpClient httpClient = HttpClient.create()
+                .wiretap(this.getClass().getCanonicalName(), LogLevel.INFO, AdvancedByteBufFormat.TEXTUAL);
+        final ClientHttpConnector conn = new ReactorClientHttpConnector(httpClient);
         return WebClient
                 .builder()
                 .baseUrl(endpoint)
+                .clientConnector(conn)
                 .build()
                 .post()
                 .headers(headers)
@@ -123,7 +135,6 @@ public class HoneywellService {
                 .retrieve()
                 .bodyToMono(HoneyWellLinkToken.class)
                 .map(user::withHoneyWellLinkToken)
-                .map(userService::save)
-                .block();
+                .flatMap(userService::save);
     }
 }

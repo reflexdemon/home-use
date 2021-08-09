@@ -1,34 +1,39 @@
 io:
-    vpv:
-        honeywell:
-            api:
-                locationsEndpoint: https://api.honeywell.com/v2/locations
-                thermostatsEndpoint: https://api.honeywell.com/v2/devices/thermostats
-            credentials:
-#                clientId: '{cipher}f871cdbaa54c0ffd143a758588d28acbfa7290ad08f265c057781fb85b14a22291ca89d4f0095b33403adcc3fd6e4d8ad5f2446bb9fc5c5828706ffd7f0c1175'
-                #                clientSecret: '{cipher}20e1936227e0f4c424bc94692aca3b228e6c8d67552dc2476001a7ff9d801438fdbac72f507e72ae6adb23c79a2a8dcb'
-                clientId: '{cipher}e2b31cc60456bbb2a7561fc85407d756b2d54792ef15db8c3ac5b05cbcea89917e76f5b9e1d86bc7ace23a35f9174bf8de38dcde8905bd5e92d6c65a4d816e24'
-                clientSecret: '{cipher}913b807b31c2752fd1178d37ede8d14ccb1715c24752b8c9df657e40a9c49c9ce01520cf99fe2278ea798cb6d351315e'
-            oauth:
-                redirectUrl: http://localhost:8080/honeywell/response/code
-                accessTokenEndpoint: https://api.honeywell.com/oauth2/accesstoken
-                authorizeEndpoint: https://api.honeywell.com/oauth2/authorize
-                tokenEndpoint: https://api.honeywell.com/oauth2/token
+  vpv:
+    honeywell:
+      api:
+        locationsEndpoint: https://api.honeywell.com/v2/locations
+        thermostatsEndpoint: https://api.honeywell.com/v2/devices/thermostats
+      credentials:
+        #                clientId: '{cipher}f871cdbaa54c0ffd143a758588d28acbfa7290ad08f265c057781fb85b14a22291ca89d4f0095b33403adcc3fd6e4d8ad5f2446bb9fc5c5828706ffd7f0c1175'
+        #                clientSecret: '{cipher}20e1936227e0f4c424bc94692aca3b228e6c8d67552dc2476001a7ff9d801438fdbac72f507e72ae6adb23c79a2a8dcb'
+        clientId: '{cipher}e2b31cc60456bbb2a7561fc85407d756b2d54792ef15db8c3ac5b05cbcea89917e76f5b9e1d86bc7ace23a35f9174bf8de38dcde8905bd5e92d6c65a4d816e24'
+        clientSecret: '{cipher}913b807b31c2752fd1178d37ede8d14ccb1715c24752b8c9df657e40a9c49c9ce01520cf99fe2278ea798cb6d351315e'
+      oauth:
+        redirectUrl: http://localhost:8080/honeywell/response/code
+        accessTokenEndpoint: https://api.honeywell.com/oauth2/accesstoken
+        authorizeEndpoint: https://api.honeywell.com/oauth2/authorize
+        tokenEndpoint: https://api.honeywell.com/oauth2/token
 server:
-    port: 8080
+  port: 8080
 spring:
-    data:
-        mongodb:
-            uri: ${MONGO_URI}
-    jpa:
-        properties:
-            hibernate:
-                show_sql: true
-    security:
-        #    https://docs.spring.io/spring-security/site/docs/5.2.x/reference/html/oauth2.html#oauth2login-boot-property-mappings
-        oauth2:
-            client:
-                registration:
-                    google:
-                        client-id: '{cipher}b7d44648dfec54846be133acad7e51168e2573ad04ca7da4895ddda028f25bbf4691a3af151535da3e1b7e6b07ef39b12d79acbce71512e2882327326aabad836db80af9cdd23c4ea5dcdd4a8310ef9ca7d9982221b8d49c7461e74a97696e31'
-                        client-secret: '{cipher}ded65b42555deca45828095e135e11b72e963c4c1bc552c424ae3523a8e797dd80db6f6eef100a1727e05d7bd18a3e02'
+  data:
+    mongodb:
+      uri: ${MONGO_URI}
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+  security:
+    #    https://docs.spring.io/spring-security/site/docs/5.2.x/reference/html/oauth2.html#oauth2login-boot-property-mappings
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: '{cipher}b7d44648dfec54846be133acad7e51168e2573ad04ca7da4895ddda028f25bbf4691a3af151535da3e1b7e6b07ef39b12d79acbce71512e2882327326aabad836db80af9cdd23c4ea5dcdd4a8310ef9ca7d9982221b8d49c7461e74a97696e31'
+            client-secret: '{cipher}ded65b42555deca45828095e135e11b72e963c4c1bc552c424ae3523a8e797dd80db6f6eef100a1727e05d7bd18a3e02'
+  main:
+    allow-bean-definition-overriding: true
+  thymeleaf:
+    reactive:
+      max-chunk-size: 8192
