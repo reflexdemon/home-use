@@ -99,7 +99,7 @@ public class Device {
     @JsonProperty("outdoorTemperature")
     public Integer outdoorTemperature;
     @JsonProperty("allowedModes")
-    public List<String> allowedModes = null;
+    public List<String> allowedModes;
     @JsonProperty("deadband")
     public Integer deadband;
     @JsonProperty("hasDualSetpointStatus")

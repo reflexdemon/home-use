@@ -9,12 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -42,6 +40,7 @@ public class OAuthLoginHandler
         Assert.notNull(user, "User cannot be empty");
         return user
                 .flatMap(u -> userService.findById(u.getId()))
+                .switchIfEmpty(user)
                 .flatMap(userService::save)
                 .map(u -> {
                     logger.info("User from DB is: {}", u);
@@ -52,13 +51,7 @@ public class OAuthLoginHandler
 
     private Mono<String> getRedirectURL(WebFilterExchange webFilterExchange) {
         Assert.notNull(webFilterExchange, "Request cannot be null");
-        return webFilterExchange.getExchange().getSession()
-                .map(WebSession::getAttributes)
-                .filter(map -> map.containsKey(Constants.SPRING_SECURITY_SAVED_REQUEST))
-                .map(map -> map.get(Constants.SPRING_SECURITY_SAVED_REQUEST))
-                .filter(DefaultSavedRequest.class::isInstance)
-                .map(DefaultSavedRequest.class::cast)
-                .map(DefaultSavedRequest::getRedirectUrl);
+        return Mono.just("/");
 
     }
 
@@ -90,12 +83,12 @@ public class OAuthLoginHandler
         Mono<User> currentUser = buildUserFromOAuth(userAttrMap);
         Mono<User> user = getReactiveDBUser(currentUser)
                 .flatMap(u -> SessionUtil.setUserToSession(webFilterExchange.getExchange(), u));
-        Mono<String> requestURL = getRedirectURL(webFilterExchange);
+        Mono<String> requestURL = getRedirectURL(webFilterExchange).defaultIfEmpty("/");
 
         //Consume
         return user
+                .then(auditService.saveBlockingLog(webFilterExchange, authentication, userAttrMap, Constants.LOGIN_SUCCESS))
                 .then(requestURL)
-                .defaultIfEmpty("/")
                 .map(URI::create)
                 .map(uri -> {
                     setLocation(uri);
@@ -103,7 +96,7 @@ public class OAuthLoginHandler
                 })
                 .then(
                         super.onAuthenticationSuccess(webFilterExchange, authentication)
-                ).then();
+                );
     }
 
 }

@@ -24,9 +24,9 @@ import java.util.List;
 public class Schedule {
 
     @JsonProperty("time")
-    public List<Time> time = null;
+    public List<Time> time;
     @JsonProperty("days")
-    public List<String> days = null;
+    public List<String> days;
     @JsonProperty("scheduleType")
     public String scheduleType;
     @JsonProperty("scheduleSubType")

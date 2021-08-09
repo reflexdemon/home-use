@@ -47,7 +47,7 @@ public class User {
     @JsonProperty("connectedHomeAccountExists")
     private Boolean connectedHomeAccountExists;
     @JsonProperty("locationRoleMapping")
-    private List<LocationRoleMapping> locationRoleMapping = null;
+    private List<LocationRoleMapping> locationRoleMapping;
     @JsonProperty("isOptOut")
     private String isOptOut;
     @JsonProperty("isCurrentUser")

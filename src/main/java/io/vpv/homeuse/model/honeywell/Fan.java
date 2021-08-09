@@ -23,7 +23,7 @@ import java.util.List;
 public class Fan {
 
     @JsonProperty("allowedModes")
-    public List<String> allowedModes = null;
+    public List<String> allowedModes;
     @JsonProperty("changeableValues")
     public ChangeableValues changeableValues;
     @JsonProperty("fanRunning")

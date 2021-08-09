@@ -33,6 +33,6 @@ public class FaceRecognition {
     @JsonProperty("maxEtaPersons")
     public Integer maxEtaPersons;
     @JsonProperty("schedules")
-    public List<Schedule> schedules = null;
+    public List<Schedule> schedules;
 
 }

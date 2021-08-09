@@ -55,9 +55,9 @@ public class Location {
     @JsonProperty("zipcode")
     public String zipcode;
     @JsonProperty("devices")
-    public List<Device> devices = null;
+    public List<Device> devices;
     @JsonProperty("users")
-    public List<User> users = null;
+    public List<User> users;
     @JsonProperty("timeZoneId")
     public String timeZoneId;
     @JsonProperty("timeZone")
