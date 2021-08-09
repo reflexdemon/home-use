@@ -17,8 +17,6 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.transport.logging.AdvancedByteBufFormat;
 
-import java.util.List;
-
 @Service
 public class HoneywellThermostatService {
 
@@ -62,14 +60,11 @@ public class HoneywellThermostatService {
                             }
                             throw new ApplicationException("Unable to get Location data", e);
                         }
-                )
-                .map(loc -> APIResponseData.builder()
-                        .user(user)
-                        .locations(loc).build());
+                );
 
     }
 
-    private Mono<List<Location>> getLocations(String endpoint, User user) {
+    private Mono<APIResponseData> getLocations(String endpoint, User user) {
         final HttpClient httpClient = HttpClient.create()
                 .wiretap(this.getClass().getCanonicalName(), LogLevel.INFO, AdvancedByteBufFormat.TEXTUAL);
         final ClientHttpConnector conn = new ReactorClientHttpConnector(httpClient);
@@ -83,7 +78,10 @@ public class HoneywellThermostatService {
                         .getAccessToken())
                 ).retrieve()
                 .bodyToFlux(Location.class)
-                .collectList();
+                .collectList()
+                .map(loc -> APIResponseData.builder()
+                        .user(user)
+                        .locations(loc).build());
     }
 
 
