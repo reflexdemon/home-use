@@ -1,11 +1,8 @@
 package io.vpv.homeuse.controller.api;
 
-import io.vpv.homeuse.model.User;
 import io.vpv.homeuse.model.honeywell.Location;
 import io.vpv.homeuse.service.HoneywellThermostatService;
 import io.vpv.homeuse.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +11,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-import static io.vpv.homeuse.config.security.Constants.LOGGED_IN_USER;
+import static io.vpv.homeuse.util.SessionUtil.getUserFromSession;
+import static io.vpv.homeuse.util.SessionUtil.setUserToSession;
 
 @RestController
 public class HoneywellAPI {
@@ -28,21 +26,14 @@ public class HoneywellAPI {
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/honeywell/locations")
-    public ResponseEntity<Mono<List<Location>>> getLocations(ServerWebExchange serverWebExchange) {
-        Mono<User> user = serverWebExchange
-                .getSession()
-                .mapNotNull(
-                        session -> session.getAttribute(LOGGED_IN_USER)
-                );
-        Mono<List<Location>> locations =
-                user.flatMap(u -> honeywellThermostatService.getLocations(u)
-                        .flatMap(apiResponse -> serverWebExchange.getSession()
-                                .mapNotNull(
-                                        webSession -> webSession
-                                                .getAttributes()
-                                                .put(LOGGED_IN_USER, apiResponse.getUser())
-                                ).thenReturn(apiResponse.getLocations())));
+    public Mono<List<Location>> getLocations(ServerWebExchange serverWebExchange) {
 
-        return new ResponseEntity<>(locations, HttpStatus.OK);
+        return getUserFromSession(serverWebExchange)
+                .flatMap(u -> honeywellThermostatService.getLocations(u)
+                        .flatMap(
+                                apiResponse -> setUserToSession(serverWebExchange, apiResponse.getUser())
+                                        .thenReturn(apiResponse.getLocations())
+                        )
+                );
     }
 }

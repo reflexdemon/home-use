@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import static io.vpv.homeuse.config.security.Constants.LOGGED_IN_USER;
 import static io.vpv.homeuse.util.SessionUtil.getUserFromSession;
+import static io.vpv.homeuse.util.SessionUtil.setUserToSession;
 
 @Controller
 @RequestMapping({"/honeywell/response/code"})
@@ -31,11 +31,9 @@ public class HoneywellResponseController {
                                   @RequestParam String code,
                                   @RequestParam String state,
                                   @RequestParam String scope) {
-        return getUserFromSession(serverWebExchange).flatMap(user -> honeywellService.getAuthToken(user, code, state, scope))
-                .flatMap(u -> serverWebExchange.getSession().mapNotNull(session -> {
-                    session.getAttributes().put(LOGGED_IN_USER, u);
-                    return u;
-                }))
+        return getUserFromSession(serverWebExchange)
+                .flatMap(user -> honeywellService.getAuthToken(user, code, state, scope))
+                .flatMap(u -> setUserToSession(serverWebExchange, u))
                 .map(u -> "redirect:/");
     }
 }

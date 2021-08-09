@@ -4,6 +4,7 @@ import io.vpv.homeuse.model.User;
 import io.vpv.homeuse.service.AuditService;
 import io.vpv.homeuse.service.UserService;
 import io.vpv.homeuse.util.OAuthUtils;
+import io.vpv.homeuse.util.SessionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -18,8 +19,6 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.Map;
-
-import static io.vpv.homeuse.config.security.Constants.LOGGED_IN_USER;
 
 @Component("VPVAuthenticationSuccessHandler")
 public class OAuthLoginHandler
@@ -90,15 +89,7 @@ public class OAuthLoginHandler
 
         Mono<User> currentUser = buildUserFromOAuth(userAttrMap);
         Mono<User> user = getReactiveDBUser(currentUser)
-                .flatMap(u -> webFilterExchange.getExchange().getSession()
-                        .map(
-                                webSession -> {
-                                    webSession.getAttributes().put(LOGGED_IN_USER, u);
-                                    return u;
-                                }));
-        //Creates a new HTTP Session
-
-
+                .flatMap(u -> SessionUtil.setUserToSession(webFilterExchange.getExchange(), u));
         Mono<String> requestURL = getRedirectURL(webFilterExchange);
 
         //Consume

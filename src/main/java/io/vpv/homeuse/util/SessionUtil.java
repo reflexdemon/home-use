@@ -14,4 +14,21 @@ public final class SessionUtil {
                         session -> session.getAttribute(LOGGED_IN_USER)
                 );
     }
+
+    public static Mono<User> setUserToSession(ServerWebExchange serverWebExchange, User u) {
+        return serverWebExchange
+                .getSession()
+                .mapNotNull(
+                        session -> session.getAttributes().put(LOGGED_IN_USER, u)
+                ).thenReturn(u);
+    }
+
+    public static Mono<Void> removeAttributeFromSession(ServerWebExchange serverWebExchange, String attrName) {
+        return serverWebExchange
+                .getSession()
+                .mapNotNull(
+                        session -> session.getAttributes().remove(attrName)
+                ).then();
+
+    }
 }
