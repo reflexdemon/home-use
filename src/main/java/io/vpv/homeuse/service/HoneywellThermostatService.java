@@ -12,6 +12,7 @@ import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.transport.logging.AdvancedByteBufFormat;
@@ -53,9 +54,14 @@ public class HoneywellThermostatService {
 
         return getLocations(endpoint, user)
                 .onErrorResume(
-                        e -> honeywellService.renewToken(user)
-                                .flatMap(newUser -> getLocations(endpoint, newUser))
-//                                .flatMap( loc -> APIResponseData.builder().user(user).locations(loc).build())
+                        e -> {
+
+                            if (e instanceof WebClientResponseException.Unauthorized) {
+                                return honeywellService.renewToken(user)
+                                        .flatMap(newUser -> getLocations(endpoint, newUser));
+                            }
+                            throw new ApplicationException("Unable to get Location data", e);
+                        }
                 )
                 .map(loc -> APIResponseData.builder()
                         .user(user)

@@ -29,11 +29,11 @@ public class HoneywellAPI {
     public Mono<List<Location>> getLocations(ServerWebExchange serverWebExchange) {
 
         return getUserFromSession(serverWebExchange)
-                .flatMap(u -> honeywellThermostatService.getLocations(u)
-                        .flatMap(
-                                apiResponse -> setUserToSession(serverWebExchange, apiResponse.getUser())
-                                        .thenReturn(apiResponse.getLocations())
-                        )
+                .flatMap(honeywellThermostatService::getLocations)
+                .flatMap(
+                        apiResponse -> setUserToSession(serverWebExchange, apiResponse.getUser())
+                                .then()
+                                .thenReturn(apiResponse.getLocations())
                 );
     }
 }
