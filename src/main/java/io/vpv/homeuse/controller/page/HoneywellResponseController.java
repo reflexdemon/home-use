@@ -2,7 +2,6 @@ package io.vpv.homeuse.controller.page;
 
 import io.vpv.homeuse.service.HoneywellService;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,14 +25,13 @@ public class HoneywellResponseController {
     }
 
     @GetMapping
-    public Mono<String> authorize(Model model,
-                                  ServerWebExchange serverWebExchange,
+    public Mono<String> authorize(ServerWebExchange serverWebExchange,
                                   @RequestParam String code,
                                   @RequestParam String state,
                                   @RequestParam String scope) {
         return getUserFromSession(serverWebExchange)
                 .flatMap(user -> honeywellService.getAuthToken(user, code, state, scope))
                 .flatMap(u -> setUserToSession(serverWebExchange, u))
-                .map(u -> "redirect:/");
+                .thenReturn("redirect:/");
     }
 }
