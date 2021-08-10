@@ -32,7 +32,6 @@ public class HoneywellAPI {
                 .flatMap(honeywellThermostatService::getLocations)
                 .flatMap(
                         apiResponse -> setUserToSession(serverWebExchange, apiResponse.getUser())
-                                .then()
                                 .thenReturn(apiResponse.getLocations())
                 );
     }

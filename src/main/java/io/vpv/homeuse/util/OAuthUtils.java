@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static io.vpv.homeuse.config.security.Constants.PROVIDER_ID;
+import static io.vpv.homeuse.util.HttpUtil.getClientHttpConnector;
 
 @Component
 public class OAuthUtils {
@@ -44,6 +45,7 @@ public class OAuthUtils {
                 .filter(Objects::nonNull)
                 .flatMap(url -> WebClient.builder()
                         .filter(oauth2Credentials(authorizedClient))
+                        .clientConnector(getClientHttpConnector(this.getClass().getCanonicalName()))
                         .build()
                         .get()
                         .uri(url.getUri())

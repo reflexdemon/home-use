@@ -87,7 +87,7 @@ public class OAuthLoginHandler
 
         //Consume
         return user
-                .then(auditService.saveBlockingLog(webFilterExchange, authentication, userAttrMap, Constants.LOGIN_SUCCESS))
+                .then(auditService.saveLog(webFilterExchange.getExchange(), authentication, userAttrMap, Constants.LOGIN_SUCCESS))
                 .then(requestURL)
                 .map(URI::create)
                 .map(uri -> {

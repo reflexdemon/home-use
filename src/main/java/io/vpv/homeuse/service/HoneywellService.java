@@ -27,6 +27,7 @@ import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static io.vpv.homeuse.util.HttpUtil.getClientHttpConnector;
 import static java.util.Objects.isNull;
 import static org.springframework.web.reactive.function.BodyInserters.fromFormData;
 
@@ -127,7 +128,7 @@ public class HoneywellService {
         return WebClient
                 .builder()
                 .baseUrl(endpoint)
-                .clientConnector(conn)
+                .clientConnector(getClientHttpConnector(this.getClass().getCanonicalName()))
                 .build()
                 .post()
                 .headers(headers)

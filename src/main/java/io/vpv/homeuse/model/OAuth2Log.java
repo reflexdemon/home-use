@@ -21,7 +21,7 @@ public class OAuth2Log {
     private String action;
     private String username;
     private Date timestamp;
-    private Map attributes;
-    private Map headers;
+    private Map<String, String> attributes;
+    private Map<String, String> headers;
 
 }

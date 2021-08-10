@@ -1,6 +1,5 @@
 package io.vpv.homeuse.service;
 
-import io.netty.handler.logging.LogLevel;
 import io.vpv.homeuse.config.HoneyWellConfig;
 import io.vpv.homeuse.exceptions.ApplicationException;
 import io.vpv.homeuse.model.APIResponseData;
@@ -8,14 +7,14 @@ import io.vpv.homeuse.model.User;
 import io.vpv.homeuse.model.honeywell.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.client.reactive.ClientHttpConnector;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
-import reactor.netty.transport.logging.AdvancedByteBufFormat;
+
+import java.util.Map;
+
+import static io.vpv.homeuse.util.HttpUtil.getClientHttpConnector;
 
 @Service
 public class HoneywellThermostatService {
@@ -24,11 +23,16 @@ public class HoneywellThermostatService {
     HoneyWellConfig config;
     final
     HoneywellService honeywellService;
+
+    final
+    AuditService auditService;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public HoneywellThermostatService(HoneyWellConfig config, HoneywellService honeywellService) {
+    public HoneywellThermostatService(HoneyWellConfig config, HoneywellService honeywellService, AuditService auditService) {
         this.config = config;
         this.honeywellService = honeywellService;
+        this.auditService = auditService;
     }
 
     public Mono<APIResponseData> getLocations(final User user) {
@@ -41,7 +45,11 @@ public class HoneywellThermostatService {
         }
 
 
-        return getLocationsAPI(user);
+        return getLocationsAPI(user)
+                .map(apiResponse -> {
+                    auditService.saveLog(apiResponse.getUser(), Map.of("DATA", "Retrieved Location Data"), "RETRIEVE_LOCATION_DATA");
+                    return apiResponse;
+                });
 
     }
 
@@ -65,12 +73,9 @@ public class HoneywellThermostatService {
     }
 
     private Mono<APIResponseData> getLocations(String endpoint, User user) {
-        final HttpClient httpClient = HttpClient.create()
-                .wiretap(this.getClass().getCanonicalName(), LogLevel.INFO, AdvancedByteBufFormat.TEXTUAL);
-        final ClientHttpConnector conn = new ReactorClientHttpConnector(httpClient);
         return WebClient.builder()
                 .baseUrl(endpoint)
-                .clientConnector(conn)
+                .clientConnector(getClientHttpConnector(this.getClass().getCanonicalName()))
                 .build()
                 .get()
                 .headers(httpHeaders -> httpHeaders.setBearerAuth(user
