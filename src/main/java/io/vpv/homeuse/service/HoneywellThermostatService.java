@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Map;
 
 import static io.vpv.homeuse.util.HttpUtil.getClientHttpConnector;
@@ -83,6 +84,7 @@ public class HoneywellThermostatService {
                         .getAccessToken())
                 ).retrieve()
                 .bodyToFlux(Location.class)
+                .cache(Duration.ofHours(2))
                 .collectList()
                 .map(loc -> APIResponseData.builder()
                         .user(user)
