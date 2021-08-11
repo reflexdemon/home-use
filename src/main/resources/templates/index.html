@@ -3,27 +3,23 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Welcome to Home USE</title>
-
-    <link th:href="@{webjars/bootstrap/css/bootstrap.min.css} " th:rel="stylesheet"/>
-
 </head>
 <body>
 
 <!-- Navigation -->
 <div th:replace="fragments/header :: header">...</div>
 
-
-<div class="container">
+<main class="container" role="main">
 
     <div class="row">
-        <div class="col-md-12 mt-5" th:if="${LOGGED_IN_USER} != null">
+        <div class="col-md-12 mt-5" th:if="${LOGGED_IN_USER != null}">
             Welcome, <span class="fw-bold"
-                           th:text="${LOGGED_IN_USER.getLastName()} + ', ' + ${LOGGED_IN_USER.getFirstName()}"></span>.
-            <div th:if="${LOGGED_IN_USER.honeyWellLinkToken} == null">
+                           th:text="|${LOGGED_IN_USER?.lastName}, ${LOGGED_IN_USER.firstName}|"></span>.
+            <div th:if="${LOGGED_IN_USER?.honeyWellLinkToken == null}">
                 Please click on the below button to link your Account to HoneyWell Thermostat.
                 <a class="btn btn-primary" href="/link?provider=honeywell">Link your Account with Honey Well</a>
             </div>
-            <div th:if="${LOGGED_IN_USER.honeyWellLinkToken} != null">
+            <div th:if="${LOGGED_IN_USER?.honeyWellLinkToken != null}">
                 Great job! Your account has been linked to Honeywell. Now, you can,
                 <ul>
                     <li>View Thermostat settings (WIP)</li>
@@ -33,16 +29,12 @@
                 </ul>
             </div>
         </div>
-        <div class="col-md-12 mt-5" th:if="${LOGGED_IN_USER} == null">
+        <div class="col-md-12 mt-5" th:if="${LOGGED_IN_USER == null}">
             Please <a class="btn btn-primary" href="/login">Login</a> to link your Honeywell account
         </div>
     </div>
-</div>
-
-
-<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
-<script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
-<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+</main>
+<div th:replace="fragments/footer :: footer">...</div>
 
 </body>
 </html>

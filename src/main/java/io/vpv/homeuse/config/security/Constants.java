@@ -5,4 +5,5 @@ public interface Constants {
     String PROVIDER_ID = "PROVIDER_ID";
     String LOGGED_IN_USER = "LOGGED_IN_USER";
     String LOGIN_SUCCESS = "LOGIN_SUCCESS";
+    String LOCATIONS = "LOCATIONS";
 }

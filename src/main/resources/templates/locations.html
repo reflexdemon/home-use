@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Welcome to Home USE</title>
+</head>
+<body>
+
+<!-- Navigation -->
+<div th:replace="fragments/header :: header">...</div>
+
+<main class="container" role="main">
+    <div class="row" th:each="loc : ${LOCATIONS}">
+        <div class="col-6">Location ID</div>
+        <div class="col-6">
+            <span th:text="${loc.locationID}"></span>
+        </div>
+        <div class="col-6">Name</div>
+        <div class="col-6">
+            <span th:text="${loc.name}"></span>
+        </div>
+        <div class="col-6">Street Address</div>
+        <div class="col-6">
+            <span th:text="${loc.streetAddress}"></span>
+        </div>
+    </div>
+
+</main>
+<div th:replace="fragments/footer :: footer">...</div>
+
+</body>
+</html>
