@@ -28,14 +28,17 @@ public class HoneywellThermostatService {
     final
     AuditService auditService;
 
+    final UserService userService;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     WebClient webClient;
 
-    public HoneywellThermostatService(HoneyWellConfig config, HoneywellService honeywellService, AuditService auditService) {
+    public HoneywellThermostatService(HoneyWellConfig config, HoneywellService honeywellService, AuditService auditService, UserService userService) {
         this.config = config;
         this.honeywellService = honeywellService;
         this.auditService = auditService;
+        this.userService = userService;
 
         String endpoint = config.getApi().getLocationsEndpoint()
                 .concat("?apikey=")
@@ -64,17 +67,19 @@ public class HoneywellThermostatService {
 
     private Mono<APIResponseData> getLocationsAPI(final User user) {
 
-        return getLocationsInternal(user)
-                .onErrorResume(
-                        e -> {
+        return userService.findById(user.getId())
+                .flatMap(dbUser -> getLocationsInternal(dbUser)
+                        .onErrorResume(
+                                e -> {
 
-                            if (e instanceof WebClientResponseException.Unauthorized) {
-                                return honeywellService.renewToken(user)
-                                        .flatMap(this::getLocationsInternal);
-                            }
-                            throw new ApplicationException("Unable to get Location data", e);
-                        }
-                );
+                                    if (e instanceof WebClientResponseException.Unauthorized) {
+                                        return honeywellService.renewToken(dbUser)
+                                                .flatMap(this::getLocationsInternal);
+                                    }
+                                    throw new ApplicationException("Unable to get Location data", e);
+                                }
+                        ))
+                ;
 
     }
 
