@@ -14,7 +14,7 @@ import static io.vpv.homeuse.util.SessionUtil.getUserFromSession;
 import static io.vpv.homeuse.util.SessionUtil.setUserToSession;
 
 @Controller
-@RequestMapping({"/location"})
+@RequestMapping({"/locations.html"})
 public class LocationsController {
     final HoneywellThermostatService honeywellThermostatService;
 
