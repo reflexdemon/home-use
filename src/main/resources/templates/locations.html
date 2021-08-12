@@ -23,6 +23,18 @@
         <div class="col-6">
             <span th:text="${loc.streetAddress}"></span>
         </div>
+        <div class="col-6">State</div>
+        <div class="col-6">
+            <span th:text="|${loc.stateName} (${loc.state})|"></span>
+        </div>
+        <div class="col-6">Country</div>
+        <div class="col-6">
+            <span th:text="${loc.country}"></span>
+        </div>
+        <div class="col-6">Zip Code</div>
+        <div class="col-6">
+            <span th:text="${loc.zipcode}"></span>
+        </div>
     </div>
 
 </main>

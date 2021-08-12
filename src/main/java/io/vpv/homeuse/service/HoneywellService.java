@@ -1,6 +1,5 @@
 package io.vpv.homeuse.service;
 
-import io.netty.handler.logging.LogLevel;
 import io.vpv.homeuse.config.HoneyWellConfig;
 import io.vpv.homeuse.model.HoneyWellLinkToken;
 import io.vpv.homeuse.model.User;
@@ -8,15 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ClientHttpConnector;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
-import reactor.netty.transport.logging.AdvancedByteBufFormat;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -27,7 +22,7 @@ import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static io.vpv.homeuse.util.HttpUtil.getClientHttpConnector;
+import static io.vpv.homeuse.util.HttpUtil.buildWebClientForEndpoint;
 import static java.util.Objects.isNull;
 import static org.springframework.web.reactive.function.BodyInserters.fromFormData;
 
@@ -38,11 +33,14 @@ public class HoneywellService {
     HoneyWellConfig config;
     final
     UserService userService;
+    private final WebClient webClient;
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public HoneywellService(HoneyWellConfig config, UserService userService) {
         this.config = config;
         this.userService = userService;
+        final String endpoint = config.getOauth().getTokenEndpoint();
+        webClient = buildWebClientForEndpoint(endpoint, this.getClass().getCanonicalName());
     }
 
     public HoneyWellConfig getConfig() {
@@ -70,7 +68,7 @@ public class HoneywellService {
                     "state", user.getId()
             );
             String queryString = params.entrySet().stream()
-                    .map(entry -> entry.getKey() + "=" + encodeValue(entry.getValue()))
+                    .map(entry -> entry.getKey().concat("=").concat(encodeValue(entry.getValue())))
                     .collect(Collectors.joining("&"));
 
             return new StringJoiner("?").add(endpoint)
@@ -90,7 +88,6 @@ public class HoneywellService {
     }
 
     public Mono<User> getAuthToken(User user, String code, String state, String scope) {
-        final String endpoint = config.getOauth().getTokenEndpoint();
         final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("grant_type", "authorization_code");
         map.add("code", code);
@@ -103,11 +100,11 @@ public class HoneywellService {
         });
 
 
-        return postAPI(user, endpoint, map, headers);
+        return postAPI(user, map, headers);
     }
 
     public Mono<User> renewToken(final User user) {
-        final String endpoint = config.getOauth().getTokenEndpoint();
+
         final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("grant_type", "refresh_token");
         map.add("refresh_token", user.getHoneyWellLinkToken().getRefreshToken());
@@ -118,18 +115,11 @@ public class HoneywellService {
             h.setBasicAuth(config.getCredentials().getClientId(), config.getCredentials().getClientSecret());
         });
 
-        return postAPI(user, endpoint, map, headers);
+        return postAPI(user, map, headers);
     }
 
-    private Mono<User> postAPI(User user, String endpoint, MultiValueMap<String, String> map, Consumer<HttpHeaders> headers) {
-        final HttpClient httpClient = HttpClient.create()
-                .wiretap(this.getClass().getCanonicalName(), LogLevel.INFO, AdvancedByteBufFormat.TEXTUAL);
-        final ClientHttpConnector conn = new ReactorClientHttpConnector(httpClient);
-        return WebClient
-                .builder()
-                .baseUrl(endpoint)
-                .clientConnector(getClientHttpConnector(this.getClass().getCanonicalName()))
-                .build()
+    private Mono<User> postAPI(User user, MultiValueMap<String, String> map, Consumer<HttpHeaders> headers) {
+        return webClient
                 .post()
                 .headers(headers)
                 .body(fromFormData(map))

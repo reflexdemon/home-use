@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.Map;
 
-import static io.vpv.homeuse.util.HttpUtil.getClientHttpConnector;
+import static io.vpv.homeuse.util.HttpUtil.buildWebClientForEndpoint;
 
 @Service
 public class HoneywellThermostatService {
@@ -30,11 +30,19 @@ public class HoneywellThermostatService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    WebClient webClient;
+
     public HoneywellThermostatService(HoneyWellConfig config, HoneywellService honeywellService, AuditService auditService) {
         this.config = config;
         this.honeywellService = honeywellService;
         this.auditService = auditService;
+
+        String endpoint = config.getApi().getLocationsEndpoint()
+                .concat("?apikey=")
+                .concat(config.getCredentials().getClientId());
+        webClient = buildWebClientForEndpoint(endpoint, this.getClass().getCanonicalName());
     }
+
 
     public Mono<APIResponseData> getLocations(final User user) {
         if (null == user) {
@@ -55,17 +63,14 @@ public class HoneywellThermostatService {
     }
 
     private Mono<APIResponseData> getLocationsAPI(final User user) {
-        String endpoint = config.getApi().getLocationsEndpoint()
-                .concat("?apikey=")
-                .concat(config.getCredentials().getClientId());
 
-        return getLocations(endpoint, user)
+        return getLocationsInternal(user)
                 .onErrorResume(
                         e -> {
 
                             if (e instanceof WebClientResponseException.Unauthorized) {
                                 return honeywellService.renewToken(user)
-                                        .flatMap(newUser -> getLocations(endpoint, newUser));
+                                        .flatMap(this::getLocationsInternal);
                             }
                             throw new ApplicationException("Unable to get Location data", e);
                         }
@@ -73,12 +78,8 @@ public class HoneywellThermostatService {
 
     }
 
-    private Mono<APIResponseData> getLocations(String endpoint, User user) {
-        return WebClient.builder()
-                .baseUrl(endpoint)
-                .clientConnector(getClientHttpConnector(this.getClass().getCanonicalName()))
-                .build()
-                .get()
+    private Mono<APIResponseData> getLocationsInternal(User user) {
+        return webClient.get()
                 .headers(httpHeaders -> httpHeaders.setBearerAuth(user
                         .getHoneyWellLinkToken()
                         .getAccessToken())
