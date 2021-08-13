@@ -32,27 +32,38 @@
 <div th:replace="fragments/header :: header">...</div>
 
 <main class="container" role="main">
+    <div class="px-4 py-5 my-5 text-center">
+        <img alt="Lyric Rounded Logo" class="d-block mx-auto mb-4" src="/images/Lyric-Round.png">
+        <h1 class="display-5 fw-bold">Home USE</h1>
+        <div class="col-lg-6 mx-auto">
+            <p class="lead mb-4" th:if="${LOGGED_IN_USER != null}">
+                Welcome, <span class="fw-bold"
+                               th:text="|${LOGGED_IN_USER?.lastName}, ${LOGGED_IN_USER.firstName}|"></span>.
+            </p>
+            <hr class="col-12 col-md-12 mb-12">
 
-    <div class="row">
-        <div class="col-md-12 mt-5" th:if="${LOGGED_IN_USER != null}">
-            Welcome, <span class="fw-bold"
-                           th:text="|${LOGGED_IN_USER?.lastName}, ${LOGGED_IN_USER.firstName}|"></span>.
-            <div th:if="${LOGGED_IN_USER?.honeyWellLinkToken == null}">
+            <p th:if="${LOGGED_IN_USER != null && LOGGED_IN_USER?.honeyWellLinkToken == null}">
                 Please click on the below button to link your Account to HoneyWell Thermostat.
                 <a class="btn btn-primary" href="/link?provider=honeywell">Link your Account with Honey Well</a>
-            </div>
-            <div th:if="${LOGGED_IN_USER?.honeyWellLinkToken != null}">
-                Great job! Your account has been linked to Honeywell. Now, you can,
-                <ul>
+            </p>
+            <div class="col-md-12" th:if="${LOGGED_IN_USER != null && LOGGED_IN_USER?.honeyWellLinkToken != null}">
+                <p>Great job! Your account has been linked to Honeywell. Now, you
+                    can,</p>
+                <ul class="icon-list">
                     <li>View Thermostat settings (WIP)</li>
                     <li>Modify Thermostat settings (TODO)</li>
                     <li>Schedule Routine on your Thermostat (TODO)</li>
                     <li>Expose a simpler API to use your Thermostat inside your APP (TODO)</li>
                 </ul>
             </div>
-        </div>
-        <div class="col-md-12 mt-5" th:if="${LOGGED_IN_USER == null}">
-            Please <a class="btn btn-primary" href="/login">Login</a> to link your Honeywell account
+
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a class="btn btn-primary btn-lg px-4 gap-3" href="/link?provider=honeywell"
+                   th:if="${LOGGED_IN_USER != null && LOGGED_IN_USER?.honeyWellLinkToken == null}">Link your Account
+                    with Honey Well</a>
+                <a class="btn btn-primary btn-lg px-4 gap-3" href="/login" th:if="${LOGGED_IN_USER == null}">Login</a>
+
+            </div>
         </div>
     </div>
 </main>

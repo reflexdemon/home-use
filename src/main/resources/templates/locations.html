@@ -32,32 +32,32 @@
 <div th:replace="fragments/header :: header">...</div>
 
 <main class="container" role="main">
-    <div class="row" th:each="loc : ${LOCATIONS}">
-        <div class="col-6">Location ID</div>
-        <div class="col-6">
-            <span th:text="${loc.locationID}"></span>
-        </div>
-        <div class="col-6">Name</div>
-        <div class="col-6">
-            <span th:text="${loc.name}"></span>
-        </div>
-        <div class="col-6">Street Address</div>
-        <div class="col-6">
-            <span th:text="${loc.streetAddress}"></span>
-        </div>
-        <div class="col-6">State</div>
-        <div class="col-6">
-            <span th:text="|${loc.stateName} (${loc.state})|"></span>
-        </div>
-        <div class="col-6">Country</div>
-        <div class="col-6">
-            <span th:text="${loc.country}"></span>
-        </div>
-        <div class="col-6">Zip Code</div>
-        <div class="col-6">
-            <span th:text="${loc.zipcode}"></span>
-        </div>
-    </div>
+    <!--    <div class="row" th:each="loc : ${LOCATIONS}">-->
+    <!--        <div class="col-6">Location ID</div>-->
+    <!--        <div class="col-6">-->
+    <!--            <span th:text="${loc.locationID}"></span>-->
+    <!--        </div>-->
+    <!--        <div class="col-6">Name</div>-->
+    <!--        <div class="col-6">-->
+    <!--            <span th:text="${loc.name}"></span>-->
+    <!--        </div>-->
+    <!--        <div class="col-6">Street Address</div>-->
+    <!--        <div class="col-6">-->
+    <!--            <span th:text="${loc.streetAddress}"></span>-->
+    <!--        </div>-->
+    <!--        <div class="col-6">State</div>-->
+    <!--        <div class="col-6">-->
+    <!--            <span th:text="|${loc.stateName} (${loc.state})|"></span>-->
+    <!--        </div>-->
+    <!--        <div class="col-6">Country</div>-->
+    <!--        <div class="col-6">-->
+    <!--            <span th:text="${loc.country}"></span>-->
+    <!--        </div>-->
+    <!--        <div class="col-6">Zip Code</div>-->
+    <!--        <div class="col-6">-->
+    <!--            <span th:text="${loc.zipcode}"></span>-->
+    <!--        </div>-->
+    <!--    </div>-->
 
 </main>
 <div th:replace="fragments/footer :: footer">...</div>

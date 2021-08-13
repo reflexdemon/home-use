@@ -61,7 +61,7 @@ public class OAuth2LoginSecurityConfig {
 
         return http
                 .authorizeExchange()
-                .pathMatchers("/login**", "/error**", "/", "/index", "/webjars/**", "/oauth2/authorization/**", "/css/**")
+                .pathMatchers("/login**", "/error**", "/", "/index", "/webjars/**", "/oauth2/authorization/**", "/css/**", "/images/**")
                 .permitAll()
                 .anyExchange()
                 .authenticated()
