@@ -32,33 +32,40 @@
 <div th:replace="fragments/header :: header">...</div>
 
 <main class="container" role="main">
-    <!--    <div class="row" th:each="loc : ${LOCATIONS}">-->
-    <!--        <div class="col-6">Location ID</div>-->
-    <!--        <div class="col-6">-->
-    <!--            <span th:text="${loc.locationID}"></span>-->
-    <!--        </div>-->
-    <!--        <div class="col-6">Name</div>-->
-    <!--        <div class="col-6">-->
-    <!--            <span th:text="${loc.name}"></span>-->
-    <!--        </div>-->
-    <!--        <div class="col-6">Street Address</div>-->
-    <!--        <div class="col-6">-->
-    <!--            <span th:text="${loc.streetAddress}"></span>-->
-    <!--        </div>-->
-    <!--        <div class="col-6">State</div>-->
-    <!--        <div class="col-6">-->
-    <!--            <span th:text="|${loc.stateName} (${loc.state})|"></span>-->
-    <!--        </div>-->
-    <!--        <div class="col-6">Country</div>-->
-    <!--        <div class="col-6">-->
-    <!--            <span th:text="${loc.country}"></span>-->
-    <!--        </div>-->
-    <!--        <div class="col-6">Zip Code</div>-->
-    <!--        <div class="col-6">-->
-    <!--            <span th:text="${loc.zipcode}"></span>-->
-    <!--        </div>-->
-    <!--    </div>-->
+    <div class="col-md-6">
+        <form th:each="loc : ${LOCATIONS}">
+            <fieldset class="card p-3 bg-light">
+                <legend th:text="|Location : ${loc.name}|">
 
+                </legend>
+                <div class="form-floating mb-3">
+                    <input class="form-control" disabled id="locationID" th:value="${loc.locationID}"
+                           type="text">
+                    <label for="locationID">Location ID</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input class="form-control" disabled id="streetAddress" th:value="${loc.streetAddress}"
+                           type="text">
+                    <label for="streetAddress">Street Address</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input class="form-control" disabled id="stateName" th:value="|${loc.stateName} (${loc.state})|"
+                           type="text">
+                    <label for="stateName">State</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input class="form-control" disabled id="country" th:value="${loc.country}"
+                           type="text">
+                    <label for="country">Country</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input class="form-control" disabled id="zipcode" th:value="${loc.zipcode}"
+                           type="text">
+                    <label for="zipcode">Zip Code</label>
+                </div>
+            </fieldset>
+        </form>
+    </div>
 </main>
 <div th:replace="fragments/footer :: footer">...</div>
 
