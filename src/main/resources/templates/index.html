@@ -49,11 +49,18 @@
             <div class="col-md-12" th:if="${LOGGED_IN_USER != null && LOGGED_IN_USER?.honeyWellLinkToken != null}">
                 <p>Great job! Your account has been linked to Honeywell. Now, you
                     can,</p>
-                <ul class="icon-list">
-                    <li class="done">View Thermostat settings (DONE)</li>
-                    <li>Modify Thermostat settings (TODO)</li>
-                    <li>Schedule Routine on your Thermostat (TODO)</li>
-                    <li>Expose a simpler API to use your Thermostat inside your APP (TODO)</li>
+                <ul class="custom-ul">
+                    <li><span><i class="bi bi-check-circle-fill"></i></span>View Thermostat settings
+                        <strong>DONE</strong></li>
+                    <li><span><i class="bi bi-arrow-right-circle-fill"></i>
+                    </span>Modify Thermostat settings <strong>WIP</strong>
+                    </li>
+                    <li><span><i class="bi bi-circle"></i></span>Schedule Routine on your Thermostat
+                        <strong>TODO</strong>
+                    </li>
+                    <li><span><i class="bi bi-circle"></i></span>Expose a simpler API to use your
+                        Thermostat inside your APP <strong>TODO</strong>
+                    </li>
                 </ul>
             </div>
 
