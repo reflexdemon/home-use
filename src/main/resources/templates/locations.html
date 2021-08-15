@@ -33,16 +33,54 @@
 
 <main class="container" role="main">
     <div class="row" th:each="loc : ${LOCATIONS}">
-        <div class="accordion col-md-12" id="location">
+        <div class="accordion" id="accordionExample">
             <div class="accordion-item">
-                <h4 class="accordion-header" id="headingOne">
+                <h2 class="accordion-header" id="headingOne">
                     <button aria-controls="collapseOne" aria-expanded="true" class="accordion-button"
                             data-bs-target="#collapseOne" data-bs-toggle="collapse" type="button">
-                        <span th:text="|Location - ${loc.name}|"></span>
+                        <i class="bi bi-thermometer"></i>&nbsp;&nbsp;
+                        <span>Devices</span>
                     </button>
-                </h4>
-                <div aria-labelledby="headingOne" class="accordion-collapse collapse show" data-bs-parent="#location"
-                     id="collapseOne" style="">
+                </h2>
+                <div aria-labelledby="headingOne" class="accordion-collapse collapse show"
+                     data-bs-parent="#accordionExample"
+                     id="collapseOne">
+                    <div class="accordion-body">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Active?</th>
+                                <th scope="col">Mode</th>
+                                <th scope="col">Indoor Temperature</th>
+                                <th scope="col">Outdoor Temperature</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="device : ${loc.devices}">
+                                <th scope="row" th:text="${device.deviceID}"/>
+                                <td th:text="${device.name}"/>
+                                <td th:text="${device.isAlive}"/>
+                                <td th:text="${device.operationStatus.mode}"/>
+                                <td th:text="${device.indoorTemperature}"/>
+                                <td th:text="${device.outdoorTemperature}"/>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button aria-controls="collapseTwo" aria-expanded="false" class="accordion-button collapsed"
+                            data-bs-target="#collapseTwo" data-bs-toggle="collapse" type="button">
+                        <i class="bi bi-geo-alt-fill"></i>&nbsp;&nbsp;
+                        <span th:text="|${loc.name}|"></span>
+                    </button>
+                </h2>
+                <div aria-labelledby="headingTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample"
+                     id="collapseTwo">
                     <div class="accordion-body">
                         <form>
                             <fieldset class="card p-3 bg-light">
@@ -85,14 +123,16 @@
                 </div>
             </div>
             <div class="accordion-item">
-                <h4 class="accordion-header" id="headingTwo">
-                    <button aria-controls="collapseTwo" aria-expanded="false" class="accordion-button collapsed"
-                            data-bs-target="#collapseTwo" data-bs-toggle="collapse" type="button">
+                <h2 class="accordion-header" id="headingThree">
+                    <button aria-controls="collapseThree" aria-expanded="false" class="accordion-button collapsed"
+                            data-bs-target="#collapseThree" data-bs-toggle="collapse" type="button">
+                        <i class="bi bi-people-fill"></i>&nbsp;&nbsp;
                         <span>Users in Account</span>
                     </button>
-                </h4>
-                <div aria-labelledby="headingTwo" class="accordion-collapse collapse" data-bs-parent="#location"
-                     id="collapseTwo">
+                </h2>
+                <div aria-labelledby="headingThree" class="accordion-collapse collapse"
+                     data-bs-parent="#accordionExample"
+                     id="collapseThree">
                     <div class="accordion-body">
                         <table class="table table-striped table-bordered">
                             <thead>
@@ -110,41 +150,6 @@
                                 <td th:text="${user.firstname}"/>
                                 <td th:text="${user.lastname}"/>
                                 <td th:text="${user.username}"/>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <h4 class="accordion-header" id="headingThree">
-                    <button aria-controls="collapseThree" aria-expanded="false" class="accordion-button collapsed"
-                            data-bs-target="#collapseThree" data-bs-toggle="collapse" type="button">
-                        Devices
-                    </button>
-                </h4>
-                <div aria-labelledby="headingThree" class="accordion-collapse collapse" data-bs-parent="#location"
-                     id="collapseThree">
-                    <div class="accordion-body">
-                        <table class="table table-striped table-bordered">
-                            <thead>
-                            <tr>
-                                <th scope="col">ID</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Active?</th>
-                                <th scope="col">Mode</th>
-                                <th scope="col">Indoor Temperature</th>
-                                <th scope="col">Outdoor Temperature</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="device : ${loc.devices}">
-                                <th scope="row" th:text="${device.deviceID}"/>
-                                <td th:text="${device.name}"/>
-                                <td th:text="${device.isAlive}"/>
-                                <td th:text="${device.operationStatus.mode}"/>
-                                <td th:text="${device.indoorTemperature}"/>
-                                <td th:text="${device.outdoorTemperature}"/>
                             </tr>
                             </tbody>
                         </table>
