@@ -37,11 +37,11 @@ import static io.vpv.homeuse.util.SessionUtil.getUserFromSession;
 import static io.vpv.homeuse.util.SessionUtil.setUserToSession;
 
 @Controller
-@RequestMapping({"/locations.html"})
-public class LocationsController {
+@RequestMapping({"/accounts.html"})
+public class AccountsController {
     final HoneywellThermostatService honeywellThermostatService;
 
-    public LocationsController(HoneywellThermostatService honeywellThermostatService) {
+    public AccountsController(HoneywellThermostatService honeywellThermostatService) {
         this.honeywellThermostatService = honeywellThermostatService;
     }
 
