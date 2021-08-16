@@ -1,0 +1,48 @@
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ Copyright 2021 reflexdemon                                                ~
+  ~                                                                           ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a   ~
+  ~ copy of this software and associated documentation files (the "Software"),~
+  ~ to deal in the Software without restriction, including without limitation ~
+  ~ the rights to use, copy, modify, merge, publish, distribute, sublicense,  ~
+  ~ and/or sell copies of the Software, and to permit persons to whom the     ~
+  ~ Software is furnished to do so, subject to the following conditions:      ~
+  ~                                                                           ~
+  ~ The above copyright notice and this permission notice shall be included   ~
+  ~ in all copies or substantial portions of the Software.                    ~
+  ~                                                                           ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS   ~
+  ~ OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL   ~
+  ~ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER~
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING   ~
+  ~ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER       ~
+  ~ DEALINGS IN THE SOFTWARE.                                                 ~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Welcome to Home USE</title>
+</head>
+<body>
+
+<!-- Navigation -->
+<div th:replace="fragments/header :: header">...</div>
+
+<main class="container" role="main">
+    <div class="card" th:if="${DEVICE != null}">
+        <h5 class="card-header" th:text="${DEVICE.name}">Featured</h5>
+        <div class="card-body">
+            <h5 class="card-title" th:text="|${DEVICE.deviceType} v${DEVICE.thermostatVersion}|"></h5>
+            <p class="card-text">Manage your Thermostat's settings</p>
+
+            <a class="btn btn-primary" href="#">Go somewhere</a>
+        </div>
+    </div>
+
+</main>
+<div th:replace="fragments/footer :: footer">...</div>
+</body>
+</html>

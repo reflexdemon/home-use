@@ -23,42 +23,50 @@ package io.vpv.homeuse.controller.page;
  * DEALINGS IN THE SOFTWARE.                                                  *
  ******************************************************************************/
 
+import io.vpv.homeuse.model.honeywell.Device;
+import io.vpv.homeuse.model.honeywell.Location;
 import io.vpv.homeuse.service.HoneywellThermostatService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import static io.vpv.homeuse.config.security.Constants.LOCATIONS;
-import static io.vpv.homeuse.config.security.Constants.LOGGED_IN_USER;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import static io.vpv.homeuse.util.SessionUtil.getUserFromSession;
-import static io.vpv.homeuse.util.SessionUtil.setUserToSession;
 
 @Controller
-@RequestMapping({"/accounts.html"})
-public class AccountsController {
+@RequestMapping({"/edit-device.html"})
+public class EditDeviceController {
     final HoneywellThermostatService honeywellThermostatService;
 
-    public AccountsController(HoneywellThermostatService honeywellThermostatService) {
+    public EditDeviceController(HoneywellThermostatService honeywellThermostatService) {
         this.honeywellThermostatService = honeywellThermostatService;
     }
 
 
     @GetMapping
-    public Mono<String> index(Model model, ServerWebExchange serverWebExchange) {
+    public Mono<String> index(Model model, ServerWebExchange serverWebExchange, @RequestParam String deviceID) {
 
 
         return getUserFromSession(serverWebExchange)
+                .filter(s -> Objects.nonNull(deviceID))
                 .flatMap(user -> honeywellThermostatService.getLocations(user)
-                        .map(loc -> {
-                                    model.addAttribute(LOCATIONS, loc.getLocations());
-                                    model.addAttribute(LOGGED_IN_USER, loc.getUser());
-                                    setUserToSession(serverWebExchange, loc.getUser());
-                                    return loc.getUser();
-                                }
+                        .map(loc -> loc.getLocations().stream()
+                                .map(Location::getDevices)
+                                .map(devices -> devices.stream()
+                                        .filter(device -> deviceID.equalsIgnoreCase(device.getDeviceID()))
+                                        .findAny()
+                                        .map(device -> {
+                                            model.addAttribute("DEVICE", device);
+                                            return device;
+                                        }).orElse(new Device())
+                                ).collect(Collectors.toList())
                         )
-                ).thenReturn("accounts");
+                ).thenReturn("edit-device");
     }
 }
