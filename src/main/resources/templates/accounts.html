@@ -53,7 +53,9 @@
                                 <th scope="col">Name</th>
                                 <th class="d-none d-sm-table-cell" scope="col">Active?</th>
                                 <th scope="col">Mode</th>
-                                <th scope="col"><i class="bi bi-thermometer"></i>&nbsp;&nbsp;Indoor</th>
+                                <th scope="col"><i class="bi bi-thermometer"></i>&nbsp;&nbsp;Set Value</th>
+                                <th class="d-none d-sm-table-cell" scope="col"><i class="bi bi-thermometer"></i>&nbsp;&nbsp;Indoor
+                                </th>
                                 <th class="d-none d-sm-table-cell" scope="col"><i class="bi bi-thermometer"></i>&nbsp;&nbsp;Outdoor
                                 </th>
                                 <th scope="col">Action</th>
@@ -64,9 +66,18 @@
                                 <th class="d-none d-sm-table-cell" scope="row" th:text="${device.deviceID}"/>
                                 <td th:text="${device.name}"/>
                                 <td class="d-none d-sm-table-cell" th:text="${device.isAlive}"/>
-                                <td th:text="${device.operationStatus.mode}"/>
-                                <td th:text="${device.indoorTemperature}"/>
-                                <td class="d-none d-sm-table-cell" th:text="${device.outdoorTemperature}"/>
+                                <td th:text="${device.changeableValues.mode}"/>
+                                <td class="table-info"
+                                    th:if="${device.changeableValues.mode == 'Cool'}"
+                                    th:text="|${device.changeableValues.coolSetpoint} &deg; ${device.units}|"/>
+                                <td class="table-warning"
+                                    th:if="${device.changeableValues.mode == 'Heat'}"
+                                    th:text="|${device.changeableValues.heatSetpoint} &deg; ${device.units}|"/>
+                                <td th:if="${device.changeableValues.mode == 'Off'}"></td>
+                                <td class="d-none d-sm-table-cell"
+                                    th:text="|${device.indoorTemperature} &deg; ${device.units}|"/>
+                                <td class="d-none d-sm-table-cell"
+                                    th:text="|${device.outdoorTemperature} &deg; ${device.units}|"/>
                                 <td>
                                     <a class="btn btn-outline-primary"
                                        th:href="|/edit-device.html?deviceID=${device.deviceID}|"

@@ -37,6 +37,7 @@ import reactor.core.publisher.Mono;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static io.vpv.homeuse.config.security.Constants.LOGGED_IN_USER;
 import static io.vpv.homeuse.util.SessionUtil.getUserFromSession;
 
 @Controller
@@ -50,11 +51,15 @@ public class EditDeviceController {
 
 
     @GetMapping
-    public Mono<String> index(Model model, ServerWebExchange serverWebExchange, @RequestParam String deviceID) {
+    public Mono<String> editView(Model model, ServerWebExchange serverWebExchange, @RequestParam String deviceID) {
 
 
         return getUserFromSession(serverWebExchange)
                 .filter(s -> Objects.nonNull(deviceID))
+                .map(u -> {
+                    model.addAttribute(LOGGED_IN_USER, u);
+                    return u;
+                })
                 .flatMap(user -> honeywellThermostatService.getLocations(user)
                         .map(loc -> loc.getLocations().stream()
                                 .map(Location::getDevices)
