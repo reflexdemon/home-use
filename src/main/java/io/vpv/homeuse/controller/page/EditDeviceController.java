@@ -56,10 +56,6 @@ public class EditDeviceController {
 
         return getUserFromSession(serverWebExchange)
                 .filter(s -> Objects.nonNull(deviceID))
-                .map(u -> {
-                    model.addAttribute(LOGGED_IN_USER, u);
-                    return u;
-                })
                 .flatMap(user -> locationService.getLocations(user)
                         .map(loc -> loc.getLocations().stream()
                                 .map(Location::getDevices)
@@ -68,6 +64,7 @@ public class EditDeviceController {
                                         .findAny()
                                         .map(device -> {
                                             model.addAttribute("DEVICE", device);
+                                            model.addAttribute(LOGGED_IN_USER, loc.getUser());
                                             return device;
                                         }).orElse(new Device())
                                 ).collect(Collectors.toList())
