@@ -25,7 +25,7 @@ package io.vpv.homeuse.service;
 
 import io.vpv.homeuse.config.HoneyWellConfig;
 import io.vpv.homeuse.exceptions.ApplicationException;
-import io.vpv.homeuse.model.APIResponseData;
+import io.vpv.homeuse.model.LocationAPIResponse;
 import io.vpv.homeuse.model.User;
 import io.vpv.homeuse.model.honeywell.Location;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ import static io.vpv.homeuse.util.HttpUtil.buildWebClientForEndpoint;
 
 
 @Service
-public class HoneywellThermostatService {
+public class HoneywellLocationService {
 
     final
     HoneyWellConfig config;
@@ -58,7 +58,7 @@ public class HoneywellThermostatService {
 
     WebClient webClient;
 
-    public HoneywellThermostatService(HoneyWellConfig config, HoneywellService honeywellService, AuditService auditService, UserService userService) {
+    public HoneywellLocationService(HoneyWellConfig config, HoneywellService honeywellService, AuditService auditService, UserService userService) {
         this.config = config;
         this.honeywellService = honeywellService;
         this.auditService = auditService;
@@ -71,7 +71,7 @@ public class HoneywellThermostatService {
     }
 
 
-    public Mono<APIResponseData> getLocations(final User user) {
+    public Mono<LocationAPIResponse> getLocations(final User user) {
         if (null == user) {
             throw new ApplicationException("User cannot be null");
         }
@@ -89,7 +89,7 @@ public class HoneywellThermostatService {
 
     }
 
-    private Mono<APIResponseData> getLocationsAPI(final User user) {
+    private Mono<LocationAPIResponse> getLocationsAPI(final User user) {
 
         return userService.findById(user.getId())
                 .flatMap(dbUser -> getLocationsInternal(dbUser)
@@ -107,7 +107,7 @@ public class HoneywellThermostatService {
 
     }
 
-    private Mono<APIResponseData> getLocationsInternal(User user) {
+    private Mono<LocationAPIResponse> getLocationsInternal(User user) {
         return webClient.get()
                 .headers(httpHeaders -> httpHeaders.setBearerAuth(user
                         .getHoneyWellLinkToken()
@@ -116,7 +116,7 @@ public class HoneywellThermostatService {
                 .bodyToFlux(Location.class)
                 .cache(Duration.ofHours(2))
                 .collectList()
-                .map(loc -> APIResponseData.builder()
+                .map(loc -> LocationAPIResponse.builder()
                         .user(user)
                         .locations(loc).build());
     }

@@ -25,7 +25,7 @@ package io.vpv.homeuse.controller.page;
 
 import io.vpv.homeuse.model.honeywell.Device;
 import io.vpv.homeuse.model.honeywell.Location;
-import io.vpv.homeuse.service.HoneywellThermostatService;
+import io.vpv.homeuse.service.HoneywellLocationService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,10 +43,10 @@ import static io.vpv.homeuse.util.SessionUtil.getUserFromSession;
 @Controller
 @RequestMapping({"/edit-device.html"})
 public class EditDeviceController {
-    final HoneywellThermostatService honeywellThermostatService;
+    final HoneywellLocationService locationService;
 
-    public EditDeviceController(HoneywellThermostatService honeywellThermostatService) {
-        this.honeywellThermostatService = honeywellThermostatService;
+    public EditDeviceController(HoneywellLocationService locationService) {
+        this.locationService = locationService;
     }
 
 
@@ -60,7 +60,7 @@ public class EditDeviceController {
                     model.addAttribute(LOGGED_IN_USER, u);
                     return u;
                 })
-                .flatMap(user -> honeywellThermostatService.getLocations(user)
+                .flatMap(user -> locationService.getLocations(user)
                         .map(loc -> loc.getLocations().stream()
                                 .map(Location::getDevices)
                                 .map(devices -> devices.stream()

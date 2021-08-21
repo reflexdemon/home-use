@@ -36,7 +36,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @With
-public class APIResponseData {
+public class LocationAPIResponse {
     User user;
     List<Location> locations;
 }

@@ -24,7 +24,7 @@ package io.vpv.homeuse.controller.api;
  ******************************************************************************/
 
 import io.vpv.homeuse.model.honeywell.Location;
-import io.vpv.homeuse.service.HoneywellThermostatService;
+import io.vpv.homeuse.service.HoneywellLocationService;
 import io.vpv.homeuse.service.UserService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,18 +41,18 @@ import static io.vpv.homeuse.util.SessionUtil.setUserToSession;
 public class HoneywellAPI {
     final
     UserService userService;
-    private final HoneywellThermostatService honeywellThermostatService;
+    private final HoneywellLocationService locationService;
 
-    public HoneywellAPI(UserService userService, HoneywellThermostatService honeywellThermostatService) {
+    public HoneywellAPI(UserService userService, HoneywellLocationService locationService) {
         this.userService = userService;
-        this.honeywellThermostatService = honeywellThermostatService;
+        this.locationService = locationService;
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/honeywell/locations")
     public Mono<List<Location>> getLocations(ServerWebExchange serverWebExchange) {
 
         return getUserFromSession(serverWebExchange)
-                .flatMap(honeywellThermostatService::getLocations)
+                .flatMap(locationService::getLocations)
                 .flatMap(
                         apiResponse -> setUserToSession(serverWebExchange, apiResponse.getUser())
                                 .thenReturn(apiResponse.getLocations())

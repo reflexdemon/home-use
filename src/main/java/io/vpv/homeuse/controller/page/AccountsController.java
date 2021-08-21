@@ -23,7 +23,7 @@ package io.vpv.homeuse.controller.page;
  * DEALINGS IN THE SOFTWARE.                                                  *
  ******************************************************************************/
 
-import io.vpv.homeuse.service.HoneywellThermostatService;
+import io.vpv.homeuse.service.HoneywellLocationService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,10 +39,10 @@ import static io.vpv.homeuse.util.SessionUtil.setUserToSession;
 @Controller
 @RequestMapping({"/accounts.html"})
 public class AccountsController {
-    final HoneywellThermostatService honeywellThermostatService;
+    final HoneywellLocationService locationService;
 
-    public AccountsController(HoneywellThermostatService honeywellThermostatService) {
-        this.honeywellThermostatService = honeywellThermostatService;
+    public AccountsController(HoneywellLocationService locationService) {
+        this.locationService = locationService;
     }
 
 
@@ -51,7 +51,7 @@ public class AccountsController {
 
 
         return getUserFromSession(serverWebExchange)
-                .flatMap(user -> honeywellThermostatService.getLocations(user)
+                .flatMap(user -> locationService.getLocations(user)
                         .map(loc -> {
                                     model.addAttribute(LOCATIONS, loc.getLocations());
                                     model.addAttribute(LOGGED_IN_USER, loc.getUser());
