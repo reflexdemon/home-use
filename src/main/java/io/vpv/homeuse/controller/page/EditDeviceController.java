@@ -67,7 +67,7 @@ public class EditDeviceController {
                                             model.addAttribute(LOGGED_IN_USER, loc.getUser());
                                             return device;
                                         }).orElse(new Device())
-                                ).collect(Collectors.toList())
+                                ).collect(Collectors.toList())// I dont know for whome I am collecting I dont know. This linke does a lot of trick
                         )
                 ).thenReturn("edit-device");
     }
